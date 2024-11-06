@@ -1,0 +1,17 @@
+title Face Detection and Embedding
+
+participant Android Application
+participant SimFace
+
+Android Application->SimFace:initialize(SimFaceConfig)
+Android Application->SimFace:getInstance()
+Android Application<--SimFace:return SimFaceFacade
+
+group while loop [Detect Sufficient Face Quality]
+ Android Application->SimFace:faceDetectionProcessor.detectFace(bitmap)
+ Android Application<--SimFace:return List<SimFace>
+end
+
+ Android Application->SimFace:embeddingProcessor.getEmbedding(bitmap)
+ Android Application<--SimFace:return List<Float>
+
