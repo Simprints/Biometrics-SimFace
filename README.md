@@ -1,7 +1,7 @@
-SimFace is an Android library (written in Kotlin) for face recognition and quality assessment on the edge. It provides face detection, embedding creation, and biometric matching capabilities. The library is built around [Google's MLKit](https://developers.google.com/ml-kit/vision/face-detection) for face detection and [EdgeFace](https://github.com/otroshi/edgeface) for embedding (template) creation. It consists of the following modules:
+SimFace is an Android library (written in Kotlin) for face recognition and quality assessment on edge devices. It provides face detection, embedding creation, and biometric matching capabilities. The library is built around [Google's MLKit](https://developers.google.com/ml-kit/vision/face-detection) for face detection and [EdgeFace](https://github.com/otroshi/edgeface) for embedding (template) creation. It consists of the following modules:
 
-1. Face Detection and Quality Assessment: This module is used to locate faces and assess their quality in an image.
-2. Embedding Creation: This module is used to generate a 512-float vector representation of faces.
+1. Face Detection and Quality Assessment: This module is used to locate faces within an image and assess their quality.
+2. Embedding Creation: This module is used to generate a 512-float vector representation of face images.
 3. Matching and Identification: Used for verification and identification purposes.
 
 # Repository tree directory
