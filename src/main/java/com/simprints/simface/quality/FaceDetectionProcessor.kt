@@ -25,7 +25,7 @@ class FaceDetectionProcessor(): IFaceDetectionProcessoor {
                 absoluteBoundingBox = face.boundingBox,
                 yaw = face.headEulerAngleY,
                 roll = face.headEulerAngleZ,
-                quality = calculateFaceQuality(face, croppedBitmap, bitmap.width, bitmap.height)
+                quality = calculateFaceQuality(face, bitmap.width, bitmap.height)
             )
             simFaces.add(simFace)
         }
@@ -33,7 +33,7 @@ class FaceDetectionProcessor(): IFaceDetectionProcessoor {
         return simFaces
     }
 
-    private fun calculateFaceQuality(face: Face, faceImage: Bitmap, imageWidth: Int, imageHeight: Int): Float {
+    private fun calculateFaceQuality(face: Face, imageWidth: Int, imageHeight: Int): Float {
         var score = 0.0
 
         // These should add to 1.0
@@ -75,11 +75,11 @@ class FaceDetectionProcessor(): IFaceDetectionProcessoor {
             (rightScore?.let { leftScore?.plus(it) })?.div(2.0) // Use 2.0 to ensure floating-point division
 
         // Normalize the score to be between 0 and 1
-        if (averageEyeOpenness != null) {
-            return averageEyeOpenness
-        } else {
+        if (averageEyeOpenness == null) {
             return 0.0
         }
+
+        return averageEyeOpenness
     }
 
     private fun cropBitmapToFace(originalBitmap: Bitmap, boundingBox: Rect): Bitmap {

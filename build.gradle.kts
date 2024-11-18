@@ -1,10 +1,16 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    `maven-publish`
 }
 
+
+val projectGroupId = "com.simprints"
+val projectArtifactId = "biometrics_simface"
+val projectVersion = "2024.4.0"
+
 android {
-    namespace = "com.simprints.simface"
+    namespace = "$projectGroupId.$projectArtifactId"
     compileSdk = 34
 
     defaultConfig {
@@ -55,4 +61,26 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
+}
+
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/simprints/Biometrics-SimFace")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("ReleaseAar") {
+            groupId = projectGroupId
+            artifactId = projectArtifactId
+            version = projectVersion
+            afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+        }
+    }
 }

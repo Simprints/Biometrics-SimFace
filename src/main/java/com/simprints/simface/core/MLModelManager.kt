@@ -4,7 +4,7 @@ import android.content.Context
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.simprints.simface.ml.EdgefaceSGamma05
+import com.simprints.biometrics_simface.ml.EdgefaceSGamma05
 
 object MLModelManager {
 
