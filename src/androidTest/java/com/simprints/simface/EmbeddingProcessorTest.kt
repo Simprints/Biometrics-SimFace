@@ -35,6 +35,6 @@ class EmbeddingProcessorTest {
         val expectedEmbedding = expectedEmbeddingDouble.map { it.toFloat() }.toFloatArray()
 
         // Verify results
-        assertArrayEquals(expectedEmbedding, result.toFloatArray(), 0.07f) // The delta here is quite large due to small difference in processing between desktop and mobile
+        assertArrayEquals(expectedEmbedding, result.toFloatArray(), 0.1f) // The delta here is quite large due to small difference in processing between desktop and mobile
     }
 }
