@@ -4,15 +4,53 @@ SimFace is an Android library (written in Kotlin) for face recognition and quali
 2. Embedding Creation: This module is used to generate a 512-float vector representation of face images.
 3. Matching and Identification: Used for verification and identification purposes.
 
-# Repository tree directory
+# Initialization and usage
 
-The ```src``` folder contains two subfolders:
+First we need to include the library into our project. 
+
+1. Download the ```.aar``` package and put it in an ```app/libs``` folder.
+2. Add the folloowing dependencies in ```build.graddle.kts```.
+
+```kotlin
+// SimFace Support
+implementation(files("libs/biometrics_simface-2024.4.1.aar"))
+implementation("com.google.mlkit:face-detection:16.1.6")
+implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+```
+
+
+
+For more details on how you can use the library, take a look at the test cases in ```src/androidTest```.
+
+```kotlin
+// Initialize library configuration
+val simFaceConfig = SimFaceConfig(context)
+SimFaceFacade.initialize(simFaceConfig)
+val simFace = SimFaceFacade.getInstance()
+
+// Load a bitmap image for processing
+val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
+
+// Note that this can be better handled with callbacks or coroutines
+simFace.qualityProcessor.detectFace(bitmap, onSuccess = { faces ->
+    val face = faces[0]
+    if (faces.size != 1 || faces[0].quality < 0.6) throw Exception("Quality not sufficient")
+
+    // Generate an embedding from the image
+    val probe = simFace.embeddingProcessor.getEmbedding(bitmap)
+
+    // Verify the embedding against itself
+    val score = simFace.matchProcessor.verificationScore(probe, probe)
+})
+```
+
+# Repository tree directory and Class overview 
+
+In this section we provide a description of the ```SimFace``` Library. The ```src``` folder contains two subfolders:
 - ```src/main```, containing the main library source code.
-- ```src/androidTest``, which contains a set of tests for the functionality of the library.
+- ```src/androidTest```, which contains a set of tests for the functionality of the library.
 
-# Class overview 
-
-In this section we provide a description of the ```SimFace``` Library.
 
 ## Data classes
 
@@ -24,7 +62,7 @@ In this section we provide a description of the ```SimFace``` Library.
 - SimFaceFacade: used as a centralized point to initialize and access the library.
 - MLModelManager: used to initialize and load the machine learning models required for running the library. At the moment these are EdgeFace and MLKit.
 - Face Detection Processor: used for detection of faces and determining the quality of the capture.
-  - ```suspend fun detectFace(bitmap: Bitmap): List<SimFace>```
+  - ```fun detectFace(image: Bitmap, onSuccess: (List<SimFace>) -> Unit,onFailure: (Exception) -> Unit = {},onCompleted: () -> Unit = {})```
 - Embedding Processor: used for creating vector embeddings for face images.
   - ```fun getEmbedding(bitmap: Bitmap): List<Float>```
 - Match Processor: used for comparing biometric embeddings (templates).
@@ -47,27 +85,15 @@ The same steps are taken to initialize the library and get an instance of the fa
 
 ![alt text](diagrams/Verification%20and%20Identification.png)
 
-# Initializing and usage
+# System Requirements
 
-For more details on how you can use the library, take a look at the test cases in ```src/androidTest```.
+The library works with a minimum version of Android 7.0 (API Level 24). It has been tested and runs smoothly on *Samsung Galaxy A03 Core* which has the following specifications:
 
-```
-// Initialize library configuration
-val simFaceConfig = SimFaceConfig(context)
-SimFaceFacade.initialize(simFaceConfig)
-val simFace = SimFaceFacade.getInstance()
+- Android 11
+- 1.6GHz Octa-core
+- 2GB RAM
+- 8MP f/2.0 Camera
+- 32GB Storage
 
-// Load a bitmap image for processing
-val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-// Detect faces and assess quality
-val faces = simFace.qualityProcessor.detectFace(bitmap)
-if (faces.size != 1 || faces[0].quality < 0.6) throw Exception("Quality not sufficient")
 
-// Generate an embedding from the image
-val probe = simFace.embeddingProcessor.getEmbedding(bitmap)
-
-// Verify the embedding against itself as an example
-val score = simFace.matchProcessor.verificationScore(probe, probe)
-println("Verification score: $score")
-```
