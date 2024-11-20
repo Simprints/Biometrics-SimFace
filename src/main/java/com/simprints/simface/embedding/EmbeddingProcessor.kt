@@ -1,7 +1,6 @@
 package com.simprints.simface.embedding
 
 
-import android.content.Context
 import android.graphics.Bitmap
 import com.simprints.simface.core.MLModelManager
 import org.tensorflow.lite.DataType
@@ -11,7 +10,7 @@ import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat
 
-class EmbeddingProcessor(): IEmbeddingProcessor {
+class EmbeddingProcessor() : IEmbeddingProcessor {
 
     override fun getEmbedding(bitmap: Bitmap): List<Float> {
         val imageSize = 112
@@ -25,19 +24,21 @@ class EmbeddingProcessor(): IEmbeddingProcessor {
         val inputBuffer = resizedBitmap.toIntArray(imageSize)
         val floatBuffer = inputBuffer.map { it / 255f }.toFloatArray()
 
-        val tmpFeatures = TensorBuffer.createFixedSize(intArrayOf(imageSize, imageSize,3), DataType.FLOAT32)
+        val tmpFeatures =
+            TensorBuffer.createFixedSize(intArrayOf(imageSize, imageSize, 3), DataType.FLOAT32)
         tmpFeatures.loadArray(floatBuffer)
 
         val tensorBuffer = imageTensorProcessor.process(tmpFeatures).buffer
 
-        val inputFeatures = TensorBuffer.createFixedSize(intArrayOf(imageSize, imageSize,3), DataType.FLOAT32)
+        val inputFeatures =
+            TensorBuffer.createFixedSize(intArrayOf(imageSize, imageSize, 3), DataType.FLOAT32)
         inputFeatures.loadBuffer(tensorBuffer)
 
-        val outputs = model?.process(inputFeatures)
-        val outputFeature0 = outputs?.outputFeature0AsTensorBuffer
-        model?.close()
+        val outputs = model.process(inputFeatures)
+        val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+        model.close()
 
-        return outputFeature0?.floatArray?.toList() ?: emptyList()
+        return outputFeature0.floatArray?.toList() ?: emptyList()
     }
 
     private fun Bitmap.toIntArray(imageSize: Int): IntArray {
@@ -54,8 +55,6 @@ class EmbeddingProcessor(): IEmbeddingProcessor {
 
         return resultArray
     }
-
-
 }
 
 internal class ReshapeOp() : TensorOperator {
@@ -69,7 +68,8 @@ internal class ReshapeOp() : TensorOperator {
             .flatten()
             .toFloatArray()
 
-        val output = TensorBufferFloat.createFixedSize(intArrayOf(dims, height, width), DataType.FLOAT32)
+        val output =
+            TensorBufferFloat.createFixedSize(intArrayOf(dims, height, width), DataType.FLOAT32)
         output.loadArray(outPixels)
         return output
     }

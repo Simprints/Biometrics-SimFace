@@ -1,36 +1,44 @@
 package com.simprints.simface.quality
 
 import android.graphics.Bitmap
-import android.graphics.Rect
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.simprints.simface.core.MLModelManager
 import com.simprints.simface.core.SimFace
-import kotlinx.coroutines.tasks.await
 import kotlin.math.absoluteValue
 
-class FaceDetectionProcessor(): IFaceDetectionProcessoor {
+class FaceDetectionProcessor() : IFaceDetectionProcessor {
 
-    override suspend fun detectFace(bitmap: Bitmap): List<SimFace> {
-        // Convert bitmap to ML Kit's InputImage format
-        val image = InputImage.fromBitmap(bitmap, 0)
-        val faces = MLModelManager.getFaceDetector()?.process(image)?.await()
-        val simFaces = mutableListOf<SimFace>()
+    override fun detectFace(
+        image: Bitmap,
+        onSuccess: (List<SimFace>) -> Unit,
+        onFailure: (Exception) -> Unit,
+        onCompleted: () -> Unit
+    ) {
+        val detector = MLModelManager.getFaceDetector()
+        val inputImage = InputImage.fromBitmap(image, 0)
 
-        faces?.forEach { face ->
-            val croppedBitmap = cropBitmapToFace(bitmap, face.boundingBox)
-            val simFace = SimFace(
-                sourceWidth = bitmap.width,
-                sourceHeight = bitmap.height,
-                absoluteBoundingBox = face.boundingBox,
-                yaw = face.headEulerAngleY,
-                roll = face.headEulerAngleZ,
-                quality = calculateFaceQuality(face, bitmap.width, bitmap.height)
-            )
-            simFaces.add(simFace)
-        }
-
-        return simFaces
+        detector.process(inputImage)
+            .addOnSuccessListener { faces ->
+                val simFaces = mutableListOf<SimFace>()
+                faces?.forEach { face ->
+                    val simFace = SimFace(
+                        sourceWidth = image.width,
+                        sourceHeight = image.height,
+                        absoluteBoundingBox = face.boundingBox,
+                        yaw = face.headEulerAngleY,
+                        roll = face.headEulerAngleZ,
+                        quality = calculateFaceQuality(face, image.width, image.height)
+                    )
+                    simFaces.add(simFace)
+                }
+                onSuccess(simFaces)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }.addOnCompleteListener {
+                onCompleted()
+            }
     }
 
     private fun calculateFaceQuality(face: Face, imageWidth: Int, imageHeight: Int): Float {
@@ -80,21 +88,6 @@ class FaceDetectionProcessor(): IFaceDetectionProcessoor {
         }
 
         return averageEyeOpenness
-    }
-
-    private fun cropBitmapToFace(originalBitmap: Bitmap, boundingBox: Rect): Bitmap {
-        // Ensure the bounding box is within the original bitmap dimensions
-        val left = boundingBox.left.coerceIn(0, originalBitmap.width)
-        val top = boundingBox.top.coerceIn(0, originalBitmap.height)
-        val right = boundingBox.right.coerceIn(0, originalBitmap.width)
-        val bottom = boundingBox.bottom.coerceIn(0, originalBitmap.height)
-
-        // Calculate the width and height of the cropped area
-        val width = right - left
-        val height = bottom - top
-
-        // Check for valid dimensions
-        return Bitmap.createBitmap(originalBitmap, left, top, width, height)
     }
 
 }

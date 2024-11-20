@@ -27,20 +27,37 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun normal_image_gets_high_score() = runBlocking {
-        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val face = simFace.faceDetectionProcessor.detectFace(bitmap)[0]
-
-        assertTrue(face.quality > 0.5)
+        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+            assertTrue(faces.isNotEmpty())
+            val face = faces[0]
+            assertTrue(face.quality > 0.5)
+        })
     }
 
     @Test
     fun bad_image_gets_low_score() = runBlocking {
-        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
-        val face = simFace.faceDetectionProcessor.detectFace(bitmap)[0]
-
-        assertTrue(face.quality < 0.5)
+        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+            assertTrue(faces.isNotEmpty())
+            val face = faces[0]
+            assertTrue(face.quality < 0.5)
+        })
     }
+
+    @Test
+    fun no_faces_in_flower_image() = runBlocking {
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.flower)
+
+        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+            assertTrue(faces.isEmpty())
+        })
+    }
+
 
 }

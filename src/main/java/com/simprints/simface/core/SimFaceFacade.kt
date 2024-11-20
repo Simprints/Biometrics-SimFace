@@ -5,14 +5,14 @@ import com.simprints.simface.embedding.IEmbeddingProcessor
 import com.simprints.simface.matcher.IMatchProcessor
 import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
-import com.simprints.simface.quality.IFaceDetectionProcessoor
+import com.simprints.simface.quality.IFaceDetectionProcessor
 
 class SimFaceFacade private constructor(private val config: SimFaceConfig) {
 
     // Internal processors
     val embeddingProcessor: IEmbeddingProcessor
     val matchProcessor: IMatchProcessor
-    val faceDetectionProcessor: IFaceDetectionProcessoor
+    val faceDetectionProcessor: IFaceDetectionProcessor
 
     init {
         // Initialize the model manager with the given config

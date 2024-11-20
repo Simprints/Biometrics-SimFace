@@ -8,8 +8,8 @@ import com.simprints.biometrics_simface.ml.EdgefaceSGamma05
 
 object MLModelManager {
 
-    private var faceEmbeddingModel: EdgefaceSGamma05? = null
-    private var faceDetector: FaceDetector? = null
+    private lateinit var faceEmbeddingModel: EdgefaceSGamma05
+    private lateinit var faceDetector: FaceDetector
 
     fun loadModels(context: Context) {
         // Load Face Embedding Model
@@ -27,15 +27,13 @@ object MLModelManager {
         faceDetector = FaceDetection.getClient(realTimeOpts)
     }
 
-    fun getFaceEmbeddingModel(): EdgefaceSGamma05? = faceEmbeddingModel
-    fun getFaceDetector(): FaceDetector? = faceDetector
+    fun getFaceEmbeddingModel(): EdgefaceSGamma05 = faceEmbeddingModel
+    fun getFaceDetector(): FaceDetector = faceDetector
 
     // Close method to release resources
     fun close() {
-        faceEmbeddingModel?.close()
-        faceEmbeddingModel = null
-        faceDetector?.close()
-        faceDetector = null
+        faceEmbeddingModel.close()
+        faceDetector.close()
     }
 
 }
