@@ -10,4 +10,6 @@ interface IFaceDetectionProcessor {
         onFailure: (Exception) -> Unit = {},
         onCompleted: () -> Unit = {}
     )
+
+    suspend fun detectFaceBlocking(image: Bitmap): List<SimFace>
 }

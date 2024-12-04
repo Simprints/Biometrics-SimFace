@@ -3,5 +3,5 @@ package com.simprints.simface.embedding
 import android.graphics.Bitmap
 
 interface IEmbeddingProcessor {
-    fun getEmbedding(bitmap: Bitmap): List<Float>
+    fun getEmbedding(bitmap: Bitmap): ByteArray
 }

@@ -15,13 +15,17 @@ class SimFaceFacade private constructor(private val config: SimFaceConfig) {
     val faceDetectionProcessor: IFaceDetectionProcessor
 
     init {
-        // Initialize the model manager with the given config
-        MLModelManager.loadModels(config.context)
+        try {
+            // Initialize the model manager with the given config
+            MLModelManager.loadModels(config.context)
 
-        // Initialize processors
-        embeddingProcessor = EmbeddingProcessor()
-        matchProcessor = MatchProcessor()
-        faceDetectionProcessor = FaceDetectionProcessor()
+            // Initialize processors
+            embeddingProcessor = EmbeddingProcessor()
+            matchProcessor = MatchProcessor()
+            faceDetectionProcessor = FaceDetectionProcessor()
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
+        }
     }
 
     companion object {
@@ -29,18 +33,27 @@ class SimFaceFacade private constructor(private val config: SimFaceConfig) {
         private var instance: SimFaceFacade? = null
 
         fun initialize(config: SimFaceConfig) {
-            instance ?: synchronized(this) {
-                instance ?: SimFaceFacade(config).also { instance = it }
+            synchronized(this) {
+                try {
+                    instance ?: SimFaceFacade(config).also { instance = it }
+                } catch (e: Exception) {
+                    throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
+                }
             }
         }
 
         fun getInstance(): SimFaceFacade {
-            return instance ?: throw Exception("Library not initialized. Call initialize() first.")
+            return instance ?: throw IllegalStateException("Library not initialized. Call initialize() first.")
         }
 
         fun release() {
-            MLModelManager.close()
-            instance = null
+            try {
+                MLModelManager.close()
+            } catch (e: Exception) {
+                println("Error releasing MLModelManager: ${e.message}")
+            } finally {
+                instance = null
+            }
         }
     }
 }

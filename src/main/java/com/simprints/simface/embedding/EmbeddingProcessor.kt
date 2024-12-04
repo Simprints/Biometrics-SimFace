@@ -12,7 +12,7 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat
 
 class EmbeddingProcessor() : IEmbeddingProcessor {
 
-    override fun getEmbedding(bitmap: Bitmap): List<Float> {
+    override fun getEmbedding(bitmap: Bitmap): ByteArray {
         val imageSize = 112
         val imageTensorProcessor = TensorProcessor.Builder()
             .add(NormalizeOp(0.5f, 0.5f))
@@ -20,7 +20,13 @@ class EmbeddingProcessor() : IEmbeddingProcessor {
             .build()
 
         val model = MLModelManager.getFaceEmbeddingModel()
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false)
+
+        val resizedBitmap = try {
+            Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Failed to resize the bitmap: ${e.message}", e)
+        }
+
         val inputBuffer = resizedBitmap.toIntArray(imageSize)
         val floatBuffer = inputBuffer.map { it / 255f }.toFloatArray()
 
@@ -36,52 +42,46 @@ class EmbeddingProcessor() : IEmbeddingProcessor {
 
         val outputs = model.process(inputFeatures)
         val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-        model.close()
 
-        return outputFeature0.floatArray?.toList() ?: emptyList()
+        val floatArray = outputFeature0.floatArray?: return ByteArray(0)
+
+        return Utils.floatArrayToByteArray(floatArray)
     }
 
     private fun Bitmap.toIntArray(imageSize: Int): IntArray {
         val intValues = IntArray(imageSize * imageSize)
+        val resultArray = IntArray(imageSize * imageSize * 3)
+
         getPixels(intValues, 0, imageSize, 0, 0, imageSize, imageSize)
 
-        val resultArray = IntArray(imageSize * imageSize * 3)
-        var j = 0
-        for (i in intValues.indices) {
-            resultArray[j++] = intValues[i].shr(16).and(255)
-            resultArray[j++] = intValues[i].shr(8).and(255)
-            resultArray[j++] = intValues[i].and(255)
+        var index = 0
+        for (pixel in intValues) {
+            resultArray[index++] = (pixel shr 16) and 255 // Red
+            resultArray[index++] = (pixel shr 8) and 255  // Green
+            resultArray[index++] = pixel and 255          // Blue
         }
-
         return resultArray
     }
 }
 
-internal class ReshapeOp() : TensorOperator {
-    override fun apply(p0: TensorBuffer): TensorBuffer {
-        val (height, width, dims) = p0.shape
+internal class ReshapeOp : TensorOperator {
+    override fun apply(tensorBuffer: TensorBuffer): TensorBuffer {
+        val (height, width, dims) = tensorBuffer.shape
 
-        val outPixels = p0.floatArray
-            .toList()
-            .chunked(dims)
-            .rotateListOfLists()
-            .flatten()
-            .toFloatArray()
-
-        val output =
-            TensorBufferFloat.createFixedSize(intArrayOf(dims, height, width), DataType.FLOAT32)
-        output.loadArray(outPixels)
-        return output
-    }
-
-    private fun <T> List<List<T>>.rotateListOfLists(): List<List<T>> {
-        // Transpose the list
-        val transposed = MutableList(this[0].size) { MutableList<T?>(this.size) { null } }
-        for (i in this.indices) {
-            for (j in this[0].indices) {
-                transposed[j][i] = this[i][j]
+        val reshapedArray = FloatArray(height * width * dims)
+        val inputArray = tensorBuffer.floatArray
+        for (h in 0 until height) {
+            for (w in 0 until width) {
+                for (d in 0 until dims) {
+                    reshapedArray[d * height * width + h * width + w] =
+                        inputArray[h * width * dims + w * dims + d]
+                }
             }
         }
-        return transposed.map { it.filterNotNull() }
+
+        val reshapedTensor =
+            TensorBufferFloat.createFixedSize(intArrayOf(dims, height, width), DataType.FLOAT32)
+        reshapedTensor.loadArray(reshapedArray)
+        return reshapedTensor
     }
 }

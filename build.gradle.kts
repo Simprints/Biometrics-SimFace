@@ -4,14 +4,13 @@ plugins {
     `maven-publish`
 }
 
-
 val projectGroupId = "com.simprints"
 val projectArtifactId = "biometrics_simface"
 val projectVersion = "2024.4.1"
 
 android {
     namespace = "$projectGroupId.$projectArtifactId"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -46,18 +45,17 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
     // Tensorflow versions that works with Edgeface
-    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
-    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    api("org.tensorflow:tensorflow-lite-support:0.4.4")
+    api("org.tensorflow:tensorflow-lite-metadata:0.4.4")
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
 
     // Face Detection and quality
-    implementation("com.google.mlkit:face-detection:16.1.6")
+    api("com.google.mlkit:face-detection:16.1.6")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
