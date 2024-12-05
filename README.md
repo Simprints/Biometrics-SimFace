@@ -74,7 +74,7 @@ simFace.faceDetectionProcessor.detectFace(faceImage, onSuccess = { faces ->
     val alignedFace = simFace.faceDetectionProcessor.alignFace(faceImage, face.absoluteBoundingBox)
 
     // Generate an embedding from the image
-    val probe = simFace.embeddingProcessor.getEmbedding(bitmap)
+    val probe = simFace.embeddingProcessor.getEmbedding(alignedFace)
 
     // Verify the embedding against itself
     val score = simFace.matchProcessor.verificationScore(probe, probe)
