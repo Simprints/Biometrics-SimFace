@@ -1,6 +1,7 @@
 package com.simprints.simface.quality
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -70,6 +71,18 @@ class FaceDetectionProcessor() : IFaceDetectionProcessor {
                     continuation.resumeWithException(exception)
                 }
         }
+    }
+
+    override fun alignFace(bitmap: Bitmap, faceBoundingBox: Rect): Bitmap {
+        // Ensure the Rect is valid and within the bounds of the Bitmap
+        if (faceBoundingBox.left < 0 || faceBoundingBox.top < 0 || faceBoundingBox.right > bitmap.width || faceBoundingBox.bottom > bitmap.height) {
+            throw IllegalArgumentException("The provided faceBoundingBox is out of the Bitmap bounds: $faceBoundingBox")
+        }
+        if (faceBoundingBox.width() <= 0 || faceBoundingBox.height() <= 0) {
+            throw IllegalArgumentException("The provided faceBoundingBox has invalid dimensions: $faceBoundingBox")
+        }
+
+        return Bitmap.createBitmap(bitmap, faceBoundingBox.left, faceBoundingBox.top, faceBoundingBox.width(), faceBoundingBox.height())
     }
 
     private fun calculateFaceQuality(face: Face, imageWidth: Int, imageHeight: Int): Float {

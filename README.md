@@ -35,7 +35,7 @@ maven {
 2. Import the dependency in ```build.graddle.kts```:
 
 ```kotlin
-implementation("com.simprints:biometrics_simface:2024.4.2")
+implementation("com.simprints:biometrics_simface:2024.4.3")
 ```
 
 ### Option 2
@@ -45,7 +45,7 @@ implementation("com.simprints:biometrics_simface:2024.4.2")
 
 ```kotlin
 // SimFace Support
-implementation(files("libs/biometrics_simface-2024.4.1.aar"))
+implementation(files("libs/biometrics_simface-2024.4.3.aar"))
 implementation("com.google.mlkit:face-detection:16.1.6")
 implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
@@ -62,13 +62,16 @@ SimFaceFacade.initialize(simFaceConfig)
 val simFace = SimFaceFacade.getInstance()
 
 // Load a bitmap image for processing
-val bitmap: Bitmap =
+val faceImage: Bitmap =
     BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
 // Note that this can be better handled with callbacks or coroutines
-simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+simFace.faceDetectionProcessor.detectFace(faceImage, onSuccess = { faces ->
     val face = faces[0]
     if (faces.size != 1 || face.quality < 0.6) throw Exception("Quality not sufficient")
+
+    // Align and crop the image to the face bounding box
+    val alignedFace = simFace.faceDetectionProcessor.alignFace(faceImage, face.absoluteBoundingBox)
 
     // Generate an embedding from the image
     val probe = simFace.embeddingProcessor.getEmbedding(bitmap)
@@ -87,16 +90,19 @@ SimFaceFacade.initialize(simFaceConfig)
 val simFace = SimFaceFacade.getInstance()
 
 // Load a bitmap image for processing
-val bitmap: Bitmap =
+val alignedFace: Bitmap =
     BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
 lifecycleScope.launch {
-    val faces = simFace.faceDetectionProcessor.detectFaceBlocking(bitmap)
+    val faces = simFace.faceDetectionProcessor.detectFaceBlocking(alignedFace)
     val face = faces[0]
     if (faces.size != 1 || face.quality < 0.6) throw Exception("Quality not sufficient")
 
+    // Align and crop the image to the face bounding box
+    val alignedFace = simFace.faceDetectionProcessor.alignFace(faceImage, face.absoluteBoundingBox)
+
     // Generate an embedding from the image
-    val probe = simFace.embeddingProcessor.getEmbedding(bitmap).toFloatArray()
+    val probe = simFace.embeddingProcessor.getEmbedding(alignedFace)
 
     // Verify the embedding against itself
     val score = simFace.matchProcessor.verificationScore(probe, probe)
@@ -125,6 +131,8 @@ Contains data about Faces extracted from images.
   library. At the moment these are EdgeFace and MLKit.
 - Face Detection Processor: used for detection of faces and determining the quality of the capture.
     - ```fun detectFace(image: Bitmap, onSuccess: (List<SimFace>) -> Unit,onFailure: (Exception) -> Unit = {},onCompleted: () -> Unit = {})```
+    - ```fun detectFaceBlocking(image: Bitmap): List<SimFace>```
+    - ```fun alignFace(bitmap: Bitmap, faceBoundingBox: Rect): Bitmap```
 - Embedding Processor: used for creating vector embeddings for face images.
     - ```fun getEmbedding(bitmap: Bitmap): ByteArray```
 - Match Processor: used for comparing biometric embeddings (templates).

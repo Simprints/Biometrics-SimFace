@@ -6,7 +6,7 @@ plugins {
 
 val projectGroupId = "com.simprints"
 val projectArtifactId = "biometrics_simface"
-val projectVersion = "2024.4.2"
+val projectVersion = "2024.4.3"
 
 android {
     namespace = "$projectGroupId.$projectArtifactId"
