@@ -152,7 +152,7 @@ We can repeat this process multiple times until a sufficiently good face image i
 Afterwards, we can use the ```embeddingProcessor.getEmbedding``` method to obtain a vector template
 from the selected image. The embedding is represented by a 512 float array.
 
-![alt text](diagrams/Face Detection and Embedding Sequence Diagram.png)
+![alt text](diagrams/Face%20Detection%20and%20Embedding%20Sequence%20Diagram.png)
 
 ## Verification and Identification
 
@@ -163,7 +163,7 @@ using the ```matchProcessor.identificationScore``` method which returns a mappin
 referenceVectors to the the score with respect to the probe. Both methods use the cosine similarity
 between vectors as a measure of the score.
 
-![alt text](diagrams/Verification and Identification.png)
+![alt text](diagrams/Verification%20and%20Identification.png)
 
 # System Requirements
 
