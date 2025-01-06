@@ -1,0 +1,19 @@
+title Verification and Identification
+participant Android Application
+participant SimFace
+
+Android Application->SimFace:initialize(SimFaceConfig)
+Android Application->SimFace:getInstance()
+Android Application<--SimFace:return SimFaceFacade
+
+group Verification
+
+Android Application->SimFace:matchProcessor.verificationScore(probe, matchAgainst)
+ Android Application<--SimFace:return Float 
+end
+
+
+group Identification
+Android Application->SimFace:matchProcessor.identificationScore(probe, matchReferences)
+ Android Application<--SimFace:return Map<FloatArray, Float> 
+end
