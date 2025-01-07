@@ -11,7 +11,7 @@ val projectVersion = "2024.4.3"
 android {
 
     namespace = "$projectGroupId.$projectArtifactId"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
