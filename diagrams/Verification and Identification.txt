@@ -15,5 +15,5 @@ end
 
 group Identification
 Android Application->SimFace:matchProcessor.identificationScore(probe, matchReferences)
- Android Application<--SimFace:return Map<FloatArray, Float> 
+ Android Application<--SimFace:return Map<ByteArray, Float> 
 end

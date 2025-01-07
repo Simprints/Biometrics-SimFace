@@ -1,4 +1,4 @@
-title Face Detection and Embedding
+title Face Detection, Alignment and Embedding
 
 participant Android Application
 participant SimFace
@@ -12,6 +12,9 @@ group while loop [Detect Sufficient Face Quality]
  Android Application<--SimFace:return List<SimFace>
 end
 
- Android Application->SimFace:embeddingProcessor.getEmbedding(bitmap)
- Android Application<--SimFace:return List<Float>
+Android Application->SimFace:faceDetectionProcessor.alignFace(bitmap, faceBoundingBox)
+Android Application<--SimFace:return Bitmap
+
+Android Application->SimFace:embeddingProcessor.getEmbedding(bitmap)
+Android Application<--SimFace:return ByteArray
 
