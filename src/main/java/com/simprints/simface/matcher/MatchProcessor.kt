@@ -2,6 +2,7 @@ package com.simprints.simface.matcher
 
 class MatchProcessor() : IMatchProcessor {
 
+    @Throws(IllegalArgumentException::class)
     override fun verificationScore(probe: ByteArray, matchAgainst: ByteArray): Float {
         val floatProbe = Utils.byteArrayToFloatArray(probe)
         val floatMatchAgainst = Utils.byteArrayToFloatArray(matchAgainst)
