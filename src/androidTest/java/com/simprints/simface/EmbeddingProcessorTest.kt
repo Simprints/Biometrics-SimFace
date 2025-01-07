@@ -3,7 +3,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.simprints.biometrics_simface.R
+import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
 import org.junit.Assert.assertArrayEquals

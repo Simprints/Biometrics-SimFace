@@ -5,7 +5,7 @@ import android.graphics.Rect
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.simprints.biometrics_simface.R
+import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
