@@ -35,7 +35,7 @@ maven {
 2. Import the dependency in ```build.graddle.kts```:
 
 ```kotlin
-implementation("com.simprints:biometrics_simface:2024.4.3")
+implementation("com.simprints.biometrics:simface:2024.4.3")
 ```
 
 ### Option 2
@@ -45,7 +45,7 @@ implementation("com.simprints:biometrics_simface:2024.4.3")
 
 ```kotlin
 // SimFace Support
-implementation(files("libs/biometrics_simface-2024.4.3.aar"))
+implementation(files("libs/simface-2024.4.3.aar"))
 implementation("com.google.mlkit:face-detection:16.1.6")
 implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
