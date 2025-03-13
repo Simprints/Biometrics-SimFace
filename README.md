@@ -32,10 +32,13 @@ maven {
 }
 ```
 
-2. Import the dependency in ```build.graddle.kts```:
+2. Import the dependencies in ```build.graddle.kts```:
 
 ```kotlin
 implementation("com.simprints.biometrics:simface:2024.4.3")
+implementation("com.google.mlkit:face-detection:16.1.6")
+implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
 ```
 
 ### Option 2
@@ -90,11 +93,11 @@ SimFaceFacade.initialize(simFaceConfig)
 val simFace = SimFaceFacade.getInstance()
 
 // Load a bitmap image for processing
-val alignedFace: Bitmap =
+val faceImage: Bitmap =
     BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
 lifecycleScope.launch {
-    val faces = simFace.faceDetectionProcessor.detectFaceBlocking(alignedFace)
+    val faces = simFace.faceDetectionProcessor.detectFaceBlocking(faceImage)
     val face = faces[0]
     if (faces.size != 1 || face.quality < 0.6) throw Exception("Quality not sufficient")
 
