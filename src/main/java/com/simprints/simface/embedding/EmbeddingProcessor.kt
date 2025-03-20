@@ -3,6 +3,7 @@ package com.simprints.simface.embedding
 
 import android.graphics.Bitmap
 import com.simprints.simface.core.MLModelManager
+import com.simprints.simface.core.Utils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.common.TensorOperator
 import org.tensorflow.lite.support.common.TensorProcessor
@@ -43,7 +44,7 @@ class EmbeddingProcessor() : IEmbeddingProcessor {
         val outputs = model.process(inputFeatures)
         val outputFeature0 = outputs.outputFeature0AsTensorBuffer
 
-        val floatArray = outputFeature0.floatArray?: return ByteArray(0)
+        val floatArray = outputFeature0.floatArray ?: return ByteArray(0)
 
         return Utils.floatArrayToByteArray(floatArray)
     }

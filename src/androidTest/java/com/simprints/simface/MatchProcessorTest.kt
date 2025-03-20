@@ -1,8 +1,11 @@
+package com.simprints.simface
+
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
+import com.simprints.simface.core.Utils
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -80,8 +83,18 @@ class IdentificationTest {
         val arrayList = listOf(
             Utils.floatArrayToByteArray(floatArrayOf(-1.0f, 0.0f)),    // opposite to referenceArray
             Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f)),    // identical to referenceArray
-            Utils.floatArrayToByteArray(floatArrayOf(0.0f, 1.0f)),    // orthogonal to referenceArray
-            Utils.floatArrayToByteArray(floatArrayOf(0.707f, 0.707f)) // 45 degrees to referenceArray
+            Utils.floatArrayToByteArray(
+                floatArrayOf(
+                    0.0f,
+                    1.0f
+                )
+            ),    // orthogonal to referenceArray
+            Utils.floatArrayToByteArray(
+                floatArrayOf(
+                    0.707f,
+                    0.707f
+                )
+            ) // 45 degrees to referenceArray
         )
 
         val sortedMap = simFace.matchProcessor.identificationScore(referenceArray, arrayList)

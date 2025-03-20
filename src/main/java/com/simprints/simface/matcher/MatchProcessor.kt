@@ -1,5 +1,7 @@
 package com.simprints.simface.matcher
 
+import com.simprints.simface.core.Utils
+
 class MatchProcessor() : IMatchProcessor {
 
     @Throws(IllegalArgumentException::class)

@@ -2,7 +2,6 @@ package com.simprints.simface.quality
 
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.simprints.simface.core.MLModelManager
