@@ -81,7 +81,7 @@ class IdentificationTest {
     fun score_map_should_be_ordered_by_distance() {
         val referenceArray = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f))
         val arrayList = listOf(
-            Utils.floatArrayToByteArray(floatArrayOf(-1.0, 0.0f)),    // opposite to referenceArray
+            Utils.floatArrayToByteArray(floatArrayOf(-1.0f, 0.0f)),    // opposite to referenceArray
             Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f)),    // identical to referenceArray
             Utils.floatArrayToByteArray(
                 floatArrayOf(
