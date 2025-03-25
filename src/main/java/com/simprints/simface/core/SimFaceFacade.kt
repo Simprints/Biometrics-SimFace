@@ -1,18 +1,18 @@
 package com.simprints.simface.core
 
+import com.simprints.simface.embedding.TensorFlowEmbeddingProcessor
 import com.simprints.simface.embedding.EmbeddingProcessor
-import com.simprints.simface.embedding.IEmbeddingProcessor
-import com.simprints.simface.matcher.IMatchProcessor
 import com.simprints.simface.matcher.MatchProcessor
+import com.simprints.simface.matcher.CosineDistanceMatchProcessor
+import com.simprints.simface.quality.MlKitFaceDetectionProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
-import com.simprints.simface.quality.IFaceDetectionProcessor
 
 class SimFaceFacade private constructor(private val config: SimFaceConfig) {
 
     // Internal processors
-    val embeddingProcessor: IEmbeddingProcessor
-    val matchProcessor: IMatchProcessor
-    val faceDetectionProcessor: IFaceDetectionProcessor
+    val embeddingProcessor: EmbeddingProcessor
+    val matchProcessor: MatchProcessor
+    val faceDetectionProcessor: FaceDetectionProcessor
 
     init {
         try {
@@ -20,9 +20,9 @@ class SimFaceFacade private constructor(private val config: SimFaceConfig) {
             MLModelManager.loadModels(config.context)
 
             // Initialize processors
-            embeddingProcessor = EmbeddingProcessor()
-            matchProcessor = MatchProcessor()
-            faceDetectionProcessor = FaceDetectionProcessor()
+            embeddingProcessor = TensorFlowEmbeddingProcessor()
+            matchProcessor = CosineDistanceMatchProcessor()
+            faceDetectionProcessor = MlKitFaceDetectionProcessor()
         } catch (e: Exception) {
             throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
         }

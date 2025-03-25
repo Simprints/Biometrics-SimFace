@@ -1,8 +1,9 @@
+package com.simprints.simface
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.biometrics.simface.R
@@ -11,9 +12,9 @@ import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
@@ -147,7 +148,8 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun align_face_with_valid_bounding_box() {
-        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(50, 50, 150, 150)
 
         val croppedBitmap = simFace.faceDetectionProcessor.alignFace(bitmap, boundingBox)
@@ -158,7 +160,8 @@ class FaceDetectionProcessorTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun align_face_with_invalid_bounding_box() {
-        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(
             -50,
             -50,

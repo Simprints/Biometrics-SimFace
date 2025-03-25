@@ -1,33 +1,31 @@
+package com.simprints.simface.core
+
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-object Utils {
+internal object Utils {
     /**
      * Converts a FloatArray to a ByteArray.
      *
-     * @param floatArray The FloatArray to convert.
-     * @return A ByteArray representing the FloatArray.
+     * @param floatArray The float array to convert.
+     * @return A byte stream representing the contents of float array.
      */
-    fun floatArrayToByteArray(floatArray: FloatArray): ByteArray {
-        val byteBuffer = ByteBuffer.allocate(floatArray.size * 4).order(ByteOrder.nativeOrder())
-        for (value in floatArray) {
-            byteBuffer.putFloat(value)
-        }
+    internal fun floatArrayToByteArray(floatArray: FloatArray): ByteArray {
+        val byteBuffer =
+            ByteBuffer.allocate(floatArray.size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder())
+        byteBuffer.asFloatBuffer().put(floatArray)
         return byteBuffer.array()
     }
 
     /**
      * Converts a ByteArray back to a FloatArray.
      *
-     * @param byteArray The ByteArray to convert.
-     * @return A FloatArray reconstructed from the ByteArray.
+     * @param byteArray The byte stream representation of float array
+     * @return A float array reconstructed from the byte stream.
      */
-    fun byteArrayToFloatArray(byteArray: ByteArray): FloatArray {
+    internal fun byteArrayToFloatArray(byteArray: ByteArray): FloatArray {
         val byteBuffer = ByteBuffer.wrap(byteArray).order(ByteOrder.nativeOrder())
-        val floatArray = FloatArray(byteArray.size / 4)
-        for (i in floatArray.indices) {
-            floatArray[i] = byteBuffer.getFloat(i * 4)
-        }
-        return floatArray
+        val floatBuffer = byteBuffer.asFloatBuffer()
+        return FloatArray(floatBuffer.remaining()).apply { floatBuffer.get(this) }
     }
 }

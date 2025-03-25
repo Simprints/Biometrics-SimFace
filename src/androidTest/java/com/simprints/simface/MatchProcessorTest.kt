@@ -1,8 +1,11 @@
+package com.simprints.simface
+
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
+import com.simprints.simface.core.Utils
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,7 +31,7 @@ class VerificationTest {
 
         val distance = simFace.matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(1.0f, distance, 0.0001f)
+        assertEquals(1.0, distance, 0.0001)
     }
 
     @Test
@@ -38,7 +41,7 @@ class VerificationTest {
 
         val distance = simFace.matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(0.5f, distance, 0.0001f)
+        assertEquals(0.5, distance, 0.0001)
     }
 
     @Test
@@ -48,7 +51,7 @@ class VerificationTest {
 
         val distance = simFace.matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(0.0f, distance, 0.0001f)
+        assertEquals(0.0, distance, 0.0001)
     }
 
     @Test
@@ -58,7 +61,7 @@ class VerificationTest {
 
         val distance = simFace.matchProcessor.verificationScore(array1, array2)
 
-        assertTrue(distance > 0.0f && distance < 1.0f)
+        assertTrue(distance > 0.0 && distance < 1.0)
     }
 }
 
@@ -80,23 +83,33 @@ class IdentificationTest {
         val arrayList = listOf(
             Utils.floatArrayToByteArray(floatArrayOf(-1.0f, 0.0f)),    // opposite to referenceArray
             Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f)),    // identical to referenceArray
-            Utils.floatArrayToByteArray(floatArrayOf(0.0f, 1.0f)),    // orthogonal to referenceArray
-            Utils.floatArrayToByteArray(floatArrayOf(0.707f, 0.707f)) // 45 degrees to referenceArray
+            Utils.floatArrayToByteArray(
+                floatArrayOf(
+                    0.0f,
+                    1.0f
+                )
+            ),    // orthogonal to referenceArray
+            Utils.floatArrayToByteArray(
+                floatArrayOf(
+                    0.707f,
+                    0.707f
+                )
+            ) // 45 degrees to referenceArray
         )
 
         val sortedMap = simFace.matchProcessor.identificationScore(referenceArray, arrayList)
         val sortedDistances = sortedMap.values.toList()
 
         // Closest match (identical vector) should have a score of 1
-        assertEquals(1.0f, sortedDistances[0], 0.0001f)
+        assertEquals(1.0, sortedDistances[0], 0.0001)
 
         // 45-degree vector (second closest) should have a score of around 0.85355
-        assertEquals(0.85355f, sortedDistances[1], 0.0001f)
+        assertEquals(0.85355, sortedDistances[1], 0.0001)
 
         // Orthogonal vector (further away) should have a score of 0.5
-        assertEquals(0.5f, sortedDistances[2], 0.0001f)
+        assertEquals(0.5, sortedDistances[2], 0.0001)
 
         // Opposite vector (furthest away) should have a score of 0.0
-        assertEquals(0.0f, sortedDistances[3], 0.0001f)
+        assertEquals(0.0, sortedDistances[3], 0.0001)
     }
 }
