@@ -6,6 +6,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.simprints.simface.core.MLModelManager
 import com.simprints.simface.core.SimFace
+import com.simprints.simface.core.Utils.clampToBounds
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -29,7 +30,10 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
                     val simFace = SimFace(
                         sourceWidth = image.width,
                         sourceHeight = image.height,
-                        absoluteBoundingBox = face.boundingBox,
+                        absoluteBoundingBox = face.boundingBox.clampToBounds(
+                            image.width,
+                            image.height
+                        ),
                         yaw = face.headEulerAngleY,
                         roll = face.headEulerAngleZ,
                         quality = calculateFaceQuality(face, image.width, image.height)
@@ -57,7 +61,10 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
                         val simFace = SimFace(
                             sourceWidth = image.width,
                             sourceHeight = image.height,
-                            absoluteBoundingBox = face.boundingBox,
+                            absoluteBoundingBox = face.boundingBox.clampToBounds(
+                                image.width,
+                                image.height
+                            ),
                             yaw = face.headEulerAngleY,
                             roll = face.headEulerAngleZ,
                             quality = calculateFaceQuality(face, image.width, image.height)

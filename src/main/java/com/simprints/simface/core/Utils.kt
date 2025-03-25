@@ -1,5 +1,6 @@
 package com.simprints.simface.core
 
+import android.graphics.Rect
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -28,4 +29,20 @@ internal object Utils {
         val floatBuffer = byteBuffer.asFloatBuffer()
         return FloatArray(floatBuffer.remaining()).apply { floatBuffer.get(this) }
     }
+
+    /**
+     * Clamps the rectangle to the bounds of the image.
+     *
+     * @param width The width of the image.
+     * @param height The height of the image.
+     * @return A new rectangle that is clamped to the bounds of the image.
+     */
+    internal fun Rect.clampToBounds(width: Int, height: Int): Rect {
+        return Rect(
+            left.coerceAtLeast(0),
+            top.coerceAtLeast(0),
+            right.coerceAtMost(width),
+            bottom.coerceAtMost(height)
+        )
+    }    
 }
