@@ -12,19 +12,21 @@ internal class CosineDistanceMatchProcessor() : MatchProcessor {
         val array1 = Utils.byteArrayToFloatArray(probe)
         val array2 = Utils.byteArrayToFloatArray(matchAgainst)
     
-        // Calculate the dot product of array1 and array2
-        val dotProduct = array1.zip(array2) { x, y -> x * y }.sum()
-        // Calculate the magnitudes of array1 and array2
-        val magnitudeA = sqrt(array1.map { it * it }.sum())
-        val magnitudeB = sqrt(array2.map { it * it }.sum())
-        // Check to avoid division by zero
-        check(magnitudeA > 0.0 && magnitudeB > 0.0) { "Arrays must not be zero vectors." }
-        // Calculate cosine similarity
-        val cosineSimilarity = dotProduct / (magnitudeA * magnitudeB)
-        // Calculate cosine distance
-        val cosineDistance = 1 - cosineSimilarity
+        var dotProduct = 0.0
+        var magnitude1 = 0.0
+        var magnitude2 = 0.0
     
-        return (2.0 - 1.0 * cosineDistance) / 2
+        for (i in array1.indices) {
+            dotProduct += array1[i] * array2[i]
+            magnitude1 += array1[i] * array1[i]
+            magnitude2 += array2[i] * array2[i]
+        }
+        
+        check(magnitude1 > 0.0 && magnitude2 > 0.0) { "Arrays must not be zero vectors." }
+        val cosineSimilarity = dotProduct / (sqrt(magnitude1) * sqrt(magnitude2))
+        val cosineDistance = 1.0 - cosineSimilarity
+    
+        return (2.0 - cosineDistance) / 2
     }
 
     override fun identificationScore(
