@@ -7,6 +7,7 @@ tensorflowLite = "2.16.1"
 tensorflowLiteMetadata = "0.4.4"
 tensorflowLiteSupport = "0.4.4"
 faceDetection = "16.1.7"
+ejmlSimple = "0.43"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -15,6 +16,7 @@ tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "te
 tensorflow-lite-metadata = { module = "org.tensorflow:tensorflow-lite-metadata", version.ref = "tensorflowLiteMetadata" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+ejml-simple = { module = "org.ejml:ejml-simple", version.ref = "ejmlSimple" }
 
 [plugins]
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

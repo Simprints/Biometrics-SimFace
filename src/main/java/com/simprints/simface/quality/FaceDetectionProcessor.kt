@@ -2,6 +2,7 @@ package com.simprints.simface.quality
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import com.simprints.simface.core.FacialLandmarks
 import com.simprints.simface.core.SimFace
 
 interface FaceDetectionProcessor {
@@ -15,4 +16,7 @@ interface FaceDetectionProcessor {
     suspend fun detectFaceBlocking(image: Bitmap): List<SimFace>
 
     fun alignFace(bitmap: Bitmap, faceBoundingBox: Rect): Bitmap
-}
+
+    fun warpAlignFace(face: FacialLandmarks, inputImage: Bitmap): Bitmap?
+
+    }

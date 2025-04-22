@@ -47,6 +47,9 @@ dependencies {
     // Face Detection and quality
     implementation(libs.face.detection)
 
+    // For face alignment
+    implementation(libs.ejml.simple)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

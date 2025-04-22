@@ -16,6 +16,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class FaceDetectionProcessorTest {
@@ -147,7 +149,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun align_face_with_valid_bounding_box() {
+    fun crop_image_with_valid_bounding_box() {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(50, 50, 150, 150)
@@ -159,7 +161,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun align_face_with_invalid_bounding_box() {
+    fun crop_image_with_invalid_bounding_box() {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(
@@ -172,5 +174,47 @@ class FaceDetectionProcessorTest {
         simFace.faceDetectionProcessor.alignFace(bitmap, boundingBox)
     }
 
+    @Test
+    fun align_face_with_valid_bounding_box() = runBlocking {
+        val bitmap: Bitmap =
+            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
+        val resultDeferred = CompletableDeferred<List<SimFace>>()
+
+        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+            resultDeferred.complete(faces)
+        }, onFailure = { error ->
+            resultDeferred.completeExceptionally(error)
+        })
+
+        val faces = resultDeferred.await()
+        assertTrue(faces.isNotEmpty())
+        val face = faces[0]
+
+        val warpedAlignedImage = face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(it, bitmap) }
+
+////        bitmap gets saved to /storage/emulated/0/Android/data/com.simprints.biometrics.simface.test/files/
+//        fun saveBitmapToExternalStorage(context: Context, bitmap: Bitmap, filename: String) {
+//            val file = File(context.getExternalFilesDir(null), filename)
+//            FileOutputStream(file).use { fos ->
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+//            }
+//        }
+//        if (warpedAlignedImage != null) {
+//            saveBitmapToExternalStorage(context, warpedAlignedImage, "royalty_free_good_face_warp_aligned.png")
+//        }
+
+        assertTrue(warpedAlignedImage != null)
+
+        if (warpedAlignedImage != null) {
+            assertTrue(warpedAlignedImage.width == 112)
+        }
+        if (warpedAlignedImage != null) {
+            assertTrue(warpedAlignedImage.height == 112)
+        }
+
+    }
 }
+
+
+

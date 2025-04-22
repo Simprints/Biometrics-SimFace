@@ -22,10 +22,14 @@ internal class TensorFlowEmbeddingProcessor() : EmbeddingProcessor {
 
         val model = MLModelManager.getFaceEmbeddingModel()
 
-        val resizedBitmap = try {
-            Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false)
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Failed to resize the bitmap: ${e.message}", e)
+        val resizedBitmap = if (bitmap.height != imageSize && bitmap.width != imageSize) {
+            try {
+                Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false)
+            } catch (e: Exception) {
+                throw IllegalArgumentException("Failed to resize the bitmap: ${e.message}", e)
+            }
+        } else {
+            bitmap
         }
 
         val inputBuffer = resizedBitmap.toIntArray(imageSize)
