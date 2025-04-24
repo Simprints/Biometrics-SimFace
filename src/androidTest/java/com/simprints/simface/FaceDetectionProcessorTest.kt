@@ -193,17 +193,6 @@ class FaceDetectionProcessorTest {
 
         val warpedAlignedImage = face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(it, bitmap) }
 
-////        bitmap gets saved to /storage/emulated/0/Android/data/com.simprints.biometrics.simface.test/files/
-//        fun saveBitmapToExternalStorage(context: Context, bitmap: Bitmap, filename: String) {
-//            val file = File(context.getExternalFilesDir(null), filename)
-//            FileOutputStream(file).use { fos ->
-//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-//            }
-//        }
-//        if (warpedAlignedImage != null) {
-//            saveBitmapToExternalStorage(context, warpedAlignedImage, "royalty_free_good_face_warp_aligned.png")
-//        }
-
         assertTrue(warpedAlignedImage != null)
 
         if (warpedAlignedImage != null) {

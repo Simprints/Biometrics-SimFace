@@ -12,13 +12,13 @@ import com.simprints.simface.core.MLModelManager
 import com.simprints.simface.core.Point2D
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.Utils.clampToBounds
+import org.ejml.dense.row.SingularOps_DDRM
+import org.ejml.simple.SimpleMatrix
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.absoluteValue
 import kotlin.math.sqrt
-import org.ejml.simple.SimpleMatrix
-import org.ejml.dense.row.SingularOps_DDRM
 
 internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
 
@@ -148,31 +148,66 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun buildLandmarks(face: Face): FacialLandmarks? {
-        val leftEye = face.getLandmark(FaceLandmark.LEFT_EYE)?.position
-            ?: face.getContour(FaceContour.LEFT_EYE)?.points?.getOrNull(4)
-        val rightEye = face.getLandmark(FaceLandmark.RIGHT_EYE)?.position
-            ?: face.getContour(FaceContour.RIGHT_EYE)?.points?.getOrNull(4)
-        val nose = face.getLandmark(FaceLandmark.NOSE_BASE)?.position
-            ?: face.getContour(FaceContour.NOSE_BRIDGE)?.points?.lastOrNull()
-        val mouthLeft = face.getLandmark(FaceLandmark.MOUTH_LEFT)?.position
-            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.firstOrNull()
-        val mouthRight = face.getLandmark(FaceLandmark.MOUTH_RIGHT)?.position
-            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.lastOrNull()
+        val leftEyeLandmark = face.getLandmark(FaceLandmark.LEFT_EYE)
+        val leftEyeContour = face.getContour(FaceContour.LEFT_EYE)
+        val leftEye = if (leftEyeLandmark != null) {
+            leftEyeLandmark.position
+        } else if (leftEyeContour != null && leftEyeContour.points.size > 4) {
+            leftEyeContour.points[4]
+        } else {
+            return null
+        }
 
-        if (listOf(leftEye, rightEye, nose, mouthLeft, mouthRight).any { it == null }) {
+        val rightEyeLandmark = face.getLandmark(FaceLandmark.RIGHT_EYE)
+        val rightEyeContour = face.getContour(FaceContour.RIGHT_EYE)
+        val rightEye = if (rightEyeLandmark != null) {
+            rightEyeLandmark.position
+        } else if (rightEyeContour != null && rightEyeContour.points.size > 4) {
+            rightEyeContour.points[4]
+        } else {
+            return null
+        }
+
+        val noseLandmark = face.getLandmark(FaceLandmark.NOSE_BASE)
+        val noseContour = face.getContour(FaceContour.NOSE_BRIDGE)
+        val nose = if (noseLandmark != null) {
+            noseLandmark.position
+        } else if (noseContour != null && noseContour.points.isNotEmpty()) {
+            noseContour.points.last()
+        } else {
+            return null
+        }
+
+        val lowerLipContour = face.getContour(FaceContour.LOWER_LIP_BOTTOM)
+        val mouthLeftLandmark = face.getLandmark(FaceLandmark.MOUTH_LEFT)
+        val mouthLeft = if (mouthLeftLandmark != null) {
+            mouthLeftLandmark.position
+        } else if (lowerLipContour != null && lowerLipContour.points.isNotEmpty()) {
+            lowerLipContour.points.last()
+        } else {
+            return null
+        }
+
+        val mouthRightLandmark = face.getLandmark(FaceLandmark.MOUTH_RIGHT)
+        val mouthRight = if (mouthRightLandmark != null) {
+            mouthRightLandmark.position
+        } else if (lowerLipContour != null && lowerLipContour.points.isNotEmpty()) {
+            lowerLipContour.points.first()
+        } else {
             return null
         }
 
         return FacialLandmarks(
-            Point2D(leftEye!!.x, leftEye.y),
-            Point2D(rightEye!!.x, rightEye.y),
-            Point2D(nose!!.x, nose.y),
-            Point2D(mouthLeft!!.x, mouthLeft.y),
-            Point2D(mouthRight!!.x, mouthRight.y)
+            Point2D(leftEye.x, leftEye.y),
+            Point2D(rightEye.x, rightEye.y),
+            Point2D(nose.x, nose.y),
+            Point2D(mouthLeft.x, mouthLeft.y),
+            Point2D(mouthRight.x, mouthRight.y)
         )
     }
 
-    override fun warpAlignFace(face: FacialLandmarks, inputImage: Bitmap): Bitmap? {
+
+    override fun warpAlignFace(face: FacialLandmarks, inputImage: Bitmap): Bitmap {
 
         val ref = arrayOf(
             floatArrayOf(38.2946f, 51.6963f),
@@ -184,7 +219,7 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
 
         val landmarks = landmarkSetToArray(face)
         val tfm = computeTFM(landmarks, ref)
-        val warped = inputImage?.let { warpAffine(it, tfm) }
+        val warped = warpAffine(inputImage, tfm)
 
         return warped
     }
@@ -353,12 +388,14 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun landmarkSetToArray(landmarkSet: FacialLandmarks): Array<FloatArray> {
+        // Do not change the order of the different landmarks
+        // otherwise the alignment performance will degrade/not work
         return arrayOf(
             floatArrayOf(landmarkSet.eyeLeft.x, landmarkSet.eyeLeft.y),
             floatArrayOf(landmarkSet.eyeRight.x, landmarkSet.eyeRight.y),
             floatArrayOf(landmarkSet.nose.x, landmarkSet.nose.y),
             floatArrayOf(landmarkSet.mouthLeft.x, landmarkSet.mouthLeft.y),
-            floatArrayOf(landmarkSet.mouthRight.x, landmarkSet.mouthRight.y)
+            floatArrayOf(landmarkSet.mouthRight.x, landmarkSet.mouthRight.y),
         )
     }
 

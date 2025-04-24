@@ -1,11 +1,11 @@
 package com.simprints.simface.core
 
-import com.simprints.simface.embedding.TensorFlowEmbeddingProcessor
 import com.simprints.simface.embedding.EmbeddingProcessor
-import com.simprints.simface.matcher.MatchProcessor
+import com.simprints.simface.embedding.TensorFlowEmbeddingProcessor
 import com.simprints.simface.matcher.CosineDistanceMatchProcessor
-import com.simprints.simface.quality.MlKitFaceDetectionProcessor
+import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
+import com.simprints.simface.quality.MlKitFaceDetectionProcessor
 
 class SimFaceFacade private constructor(private val config: SimFaceConfig) {
 

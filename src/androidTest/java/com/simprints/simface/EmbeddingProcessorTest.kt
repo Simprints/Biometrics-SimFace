@@ -30,7 +30,7 @@ class EmbeddingProcessorTest {
 
     @Test
     fun get_embedding_with_image() {
-        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face_warp_aligned)
+        val bitmap: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
         val result = simFace.embeddingProcessor.getEmbedding(bitmap)
         val resultFloat = Utils.byteArrayToFloatArray(result)
