@@ -76,8 +76,8 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
                             ),
                             yaw = face.headEulerAngleY,
                             roll = face.headEulerAngleZ,
+                            quality = calculateFaceQuality(face, image.width, image.height),
                             landmarks = buildLandmarks(face),
-                            quality = calculateFaceQuality(face, image.width, image.height)
                         )
                         simFaces.add(simFace)
                     }
