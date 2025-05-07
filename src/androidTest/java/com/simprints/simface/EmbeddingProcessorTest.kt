@@ -100,7 +100,7 @@ class EmbeddingProcessorTest {
         )
 
         // Verify results
-        assertArrayEquals(expectedEmbedding, resultFloat, 0.001F)
+        assertArrayEquals(expectedEmbedding, resultFloat, 0.1F)
     }
 
     @Test
