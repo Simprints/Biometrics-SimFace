@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal object Utils {
+    const val IMAGE_SIZE = 112
+
     /**
      * Converts a FloatArray to a ByteArray.
      *
@@ -37,12 +39,13 @@ internal object Utils {
      * @param height The height of the image.
      * @return A new rectangle that is clamped to the bounds of the image.
      */
-    internal fun Rect.clampToBounds(width: Int, height: Int): Rect {
-        return Rect(
-            left.coerceAtLeast(0),
-            top.coerceAtLeast(0),
-            right.coerceAtMost(width),
-            bottom.coerceAtMost(height)
-        )
-    }    
+    internal fun Rect.clampToBounds(
+        width: Int,
+        height: Int,
+    ): Rect = Rect(
+        left.coerceAtLeast(0),
+        top.coerceAtLeast(0),
+        right.coerceAtMost(width),
+        bottom.coerceAtMost(height),
+    )
 }

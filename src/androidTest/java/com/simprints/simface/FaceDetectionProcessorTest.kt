@@ -1,4 +1,5 @@
 package com.simprints.simface
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,6 +10,7 @@ import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
+import com.simprints.simface.core.Utils.IMAGE_SIZE
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
@@ -165,7 +167,7 @@ class FaceDetectionProcessorTest {
             -50,
             -50,
             bitmap.width + 50,
-            bitmap.height + 50
+            bitmap.height + 50,
         )
 
         simFace.faceDetectionProcessor.alignFace(bitmap, boundingBox)
@@ -188,19 +190,16 @@ class FaceDetectionProcessorTest {
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
 
-        val warpedAlignedImage = face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(it, bitmap) }
+        val warpedAlignedImage =
+            face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(it, bitmap) }
 
         assertTrue(warpedAlignedImage != null)
 
         if (warpedAlignedImage != null) {
-            assertTrue(warpedAlignedImage.width == 112)
+            assertTrue(warpedAlignedImage.width == IMAGE_SIZE)
         }
         if (warpedAlignedImage != null) {
-            assertTrue(warpedAlignedImage.height == 112)
+            assertTrue(warpedAlignedImage.height == IMAGE_SIZE)
         }
-
     }
 }
-
-
-

@@ -10,13 +10,18 @@ interface FaceDetectionProcessor {
         image: Bitmap,
         onSuccess: (List<SimFace>) -> Unit,
         onFailure: (Exception) -> Unit = {},
-        onCompleted: () -> Unit = {}
+        onCompleted: () -> Unit = {},
     )
 
     suspend fun detectFaceBlocking(image: Bitmap): List<SimFace>
 
-    fun alignFace(bitmap: Bitmap, faceBoundingBox: Rect): Bitmap
+    fun alignFace(
+        bitmap: Bitmap,
+        faceBoundingBox: Rect,
+    ): Bitmap
 
-    fun warpAlignFace(face: FacialLandmarks, inputImage: Bitmap): Bitmap?
-
-    }
+    fun warpAlignFace(
+        face: FacialLandmarks,
+        inputImage: Bitmap,
+    ): Bitmap?
+}

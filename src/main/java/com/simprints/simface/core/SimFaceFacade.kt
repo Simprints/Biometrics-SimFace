@@ -7,8 +7,9 @@ import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
 import com.simprints.simface.quality.MlKitFaceDetectionProcessor
 
-class SimFaceFacade private constructor(private val config: SimFaceConfig) {
-
+class SimFaceFacade private constructor(
+    config: SimFaceConfig,
+) {
     // Internal processors
     val embeddingProcessor: EmbeddingProcessor
     val matchProcessor: MatchProcessor
@@ -42,9 +43,7 @@ class SimFaceFacade private constructor(private val config: SimFaceConfig) {
             }
         }
 
-        fun getInstance(): SimFaceFacade {
-            return instance ?: throw IllegalStateException("Library not initialized. Call initialize() first.")
-        }
+        fun getInstance(): SimFaceFacade = instance ?: throw IllegalStateException("Library not initialized. Call initialize() first.")
 
         fun release() {
             try {
