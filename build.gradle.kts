@@ -6,7 +6,7 @@ plugins {
 
 val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
-val projectVersion = "2025.1.1"
+val projectVersion = "2025.1.2"
 
 android {
 
@@ -47,8 +47,12 @@ dependencies {
     // Face Detection and quality
     implementation(libs.face.detection)
 
+    // For face alignment
+    implementation(libs.ejml.simple)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
 

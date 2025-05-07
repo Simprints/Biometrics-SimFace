@@ -7,14 +7,17 @@ tensorflowLite = "2.16.1"
 tensorflowLiteMetadata = "0.4.4"
 tensorflowLiteSupport = "0.4.4"
 faceDetection = "16.1.7"
+ejmlSimple = "0.43"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
 tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
 tensorflow-lite-metadata = { module = "org.tensorflow:tensorflow-lite-metadata", version.ref = "tensorflowLiteMetadata" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+ejml-simple = { module = "org.ejml:ejml-simple", version.ref = "ejmlSimple" }
 
 [plugins]
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
