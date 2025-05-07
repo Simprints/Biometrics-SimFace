@@ -1,5 +1,4 @@
 package com.simprints.simface
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,13 +10,11 @@ import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class FaceDetectionProcessorTest {
@@ -33,7 +30,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun normal_image_gets_high_score() = runBlocking {
+    fun normal_image_gets_high_score() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
@@ -52,7 +49,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun bad_image_gets_low_score() = runBlocking {
+    fun bad_image_gets_low_score() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
@@ -71,7 +68,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun no_faces_in_flower_image() = runBlocking {
+    fun no_faces_in_flower_image() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
 
@@ -88,7 +85,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun image_with_multiple_faces() = runBlocking {
+    fun image_with_multiple_faces() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
 
@@ -105,7 +102,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun normal_image_gets_high_score_blocking() = runBlocking {
+    fun normal_image_gets_high_score_blocking() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
@@ -117,7 +114,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun bad_image_gets_low_score_blocking() = runBlocking {
+    fun bad_image_gets_low_score_blocking() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
@@ -129,7 +126,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun no_faces_in_flower_image_blocking() = runBlocking {
+    fun no_faces_in_flower_image_blocking() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
 
@@ -139,7 +136,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun image_with_multiple_faces_blocking() = runBlocking {
+    fun image_with_multiple_faces_blocking() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
 
@@ -175,7 +172,7 @@ class FaceDetectionProcessorTest {
     }
 
     @Test
-    fun align_face_with_valid_bounding_box() = runBlocking {
+    fun align_face_with_valid_bounding_box() = runTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 

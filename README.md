@@ -32,7 +32,7 @@ maven {
 }
 ```
 
-2. Import the dependencies in ```build.graddle.kts```:
+2. Import the dependencies in ```build.gradle.kts```:
 
 ```kotlin
 implementation("com.simprints.biometrics:simface:2025.1.1")
@@ -44,7 +44,7 @@ implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
 ### Option 2
 
 1. Download the ```.aar``` package and put it in an ```app/libs``` folder.
-2. Add the folloowing dependencies in ```build.graddle.kts```.
+2. Add the following dependencies in ```build.gradle.kts```.
 
 ```kotlin
 // SimFace Support

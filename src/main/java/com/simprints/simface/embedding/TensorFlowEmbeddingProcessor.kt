@@ -13,8 +13,11 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBufferFloat
 
 internal class TensorFlowEmbeddingProcessor() : EmbeddingProcessor {
 
+    companion object {
+        private const val imageSize = 112
+    }
+
     override fun getEmbedding(bitmap: Bitmap): ByteArray {
-        val imageSize = 112
         val imageTensorProcessor = TensorProcessor.Builder()
             .add(NormalizeOp(0.5f, 0.5f))
             .add(ReshapeOp())
@@ -22,7 +25,7 @@ internal class TensorFlowEmbeddingProcessor() : EmbeddingProcessor {
 
         val model = MLModelManager.getFaceEmbeddingModel()
 
-        val resizedBitmap = if (bitmap.height != imageSize && bitmap.width != imageSize) {
+        val resizedBitmap = if (bitmap.height != imageSize || bitmap.width != imageSize) {
             try {
                 Bitmap.createScaledBitmap(bitmap, imageSize, imageSize, false)
             } catch (e: Exception) {

@@ -147,55 +147,26 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
         return (leftEyeScore + rightEyeScore) / 2.0
     }
 
-    fun buildLandmarks(face: Face): FacialLandmarks? {
-        val leftEyeLandmark = face.getLandmark(FaceLandmark.LEFT_EYE)
-        val leftEyeContour = face.getContour(FaceContour.LEFT_EYE)
-        val leftEye = if (leftEyeLandmark != null) {
-            leftEyeLandmark.position
-        } else if (leftEyeContour != null && leftEyeContour.points.size > 4) {
-            leftEyeContour.points[4]
-        } else {
-            return null
-        }
+    private fun buildLandmarks(face: Face): FacialLandmarks? {
+        val leftEye = face.getLandmark(FaceLandmark.LEFT_EYE)?.position
+            ?: face.getContour(FaceContour.LEFT_EYE)?.points?.getOrNull(4)
+            ?: return null
 
-        val rightEyeLandmark = face.getLandmark(FaceLandmark.RIGHT_EYE)
-        val rightEyeContour = face.getContour(FaceContour.RIGHT_EYE)
-        val rightEye = if (rightEyeLandmark != null) {
-            rightEyeLandmark.position
-        } else if (rightEyeContour != null && rightEyeContour.points.size > 4) {
-            rightEyeContour.points[4]
-        } else {
-            return null
-        }
+        val rightEye = face.getLandmark(FaceLandmark.RIGHT_EYE)?.position
+            ?: face.getContour(FaceContour.RIGHT_EYE)?.points?.getOrNull(4)
+            ?: return null
 
-        val noseLandmark = face.getLandmark(FaceLandmark.NOSE_BASE)
-        val noseContour = face.getContour(FaceContour.NOSE_BRIDGE)
-        val nose = if (noseLandmark != null) {
-            noseLandmark.position
-        } else if (noseContour != null && noseContour.points.isNotEmpty()) {
-            noseContour.points.last()
-        } else {
-            return null
-        }
+        val nose = face.getLandmark(FaceLandmark.NOSE_BASE)?.position
+            ?: face.getContour(FaceContour.NOSE_BRIDGE)?.takeIf { it.points.isNotEmpty() }?.points?.last()
+            ?: return null
 
-        val lowerLipContour = face.getContour(FaceContour.LOWER_LIP_BOTTOM)
-        val mouthLeftLandmark = face.getLandmark(FaceLandmark.MOUTH_LEFT)
-        val mouthLeft = if (mouthLeftLandmark != null) {
-            mouthLeftLandmark.position
-        } else if (lowerLipContour != null && lowerLipContour.points.isNotEmpty()) {
-            lowerLipContour.points.last()
-        } else {
-            return null
-        }
+        val mouthLeft = face.getLandmark(FaceLandmark.MOUTH_LEFT)?.position
+            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.takeIf { it.points.isNotEmpty() }?.points?.last()
+            ?: return null
 
-        val mouthRightLandmark = face.getLandmark(FaceLandmark.MOUTH_RIGHT)
-        val mouthRight = if (mouthRightLandmark != null) {
-            mouthRightLandmark.position
-        } else if (lowerLipContour != null && lowerLipContour.points.isNotEmpty()) {
-            lowerLipContour.points.first()
-        } else {
-            return null
-        }
+        val mouthRight = face.getLandmark(FaceLandmark.MOUTH_RIGHT)?.position
+            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.takeIf { it.points.isNotEmpty() }?.points?.first()
+            ?: return null
 
         return FacialLandmarks(
             Point2D(leftEye.x, leftEye.y),
@@ -208,18 +179,25 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
 
 
     override fun warpAlignFace(face: FacialLandmarks, inputImage: Bitmap): Bitmap {
+        /**
+         * Takes as input the facial landmarks obtained by MLKit and the original image
+         * and it returns a (112, 112) image, so that it can be directly processed by the face
+         * recognition model. A warp transformation is applied to the original image so that in the
+         * output image the positions of the landmarks corresponds the expected ones, which are
+         * defined here in the ref variable.
+         */
 
         val ref = arrayOf(
-            floatArrayOf(38.2946f, 51.6963f),
-            floatArrayOf(73.5318f, 51.5014f),
-            floatArrayOf(56.0252f, 71.7366f),
-            floatArrayOf(41.5493f, 92.3655f),
-            floatArrayOf(70.7299f, 92.2041f)
+            floatArrayOf(38.2946f, 51.6963f),  // Left eye reference point in (112, 112) image
+            floatArrayOf(73.5318f, 51.5014f),  // Right eye reference point in (112, 112) image
+            floatArrayOf(56.0252f, 71.7366f),  // Nose reference point in (112, 112) image
+            floatArrayOf(41.5493f, 92.3655f),  // Mouth left reference point in (112, 112) image
+            floatArrayOf(70.7299f, 92.2041f)   // Mouth right reference point in (112, 112) image
         )
 
-        val landmarks = landmarkSetToArray(face)
-        val tfm = computeTFM(landmarks, ref)
-        val warped = warpAffine(inputImage, tfm)
+        val landmarks = landmarkSetToArray(face)  // changes format of landmarks
+        val tfm = computeTFM(landmarks, ref) // computes 2x3 transformation matrix (tfm)
+        val warped = warpAffine(inputImage, tfm)  // performs transformation
 
         return warped
     }
@@ -230,20 +208,37 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
         cropWidth: Int = 112,
         cropHeight: Int = 112
     ): Bitmap {
+        /**
+         * Performs the warp affine transformation reproducing the behaviour of
+         * openCV's warpAffine. It takes as input the original image and the transformation matrix
+         * to return a (112, 112) sized aligned image that can be directly processed by the face
+         * recognition model.
+         */
+
+        /*
+        If tfm is structured so that it leaves all points unchanged (due to failures in previous
+        computing steps), then the original image is returned.
+         */
+        if (tfm.isIdentical(SimpleMatrix(arrayOf(
+                doubleArrayOf(1.0, 0.0, 0.0),
+                doubleArrayOf( 0.0, 1.0, 0.0))), 1e-8)) {
+            return inputBitmap
+        }
 
         val outputBitmap = Bitmap.createBitmap(cropWidth, cropHeight, Bitmap.Config.ARGB_8888)
 
         // Extract matrix values from tfm (2x3)
-        val values = FloatArray(9) { 0f }
-        values[0] = tfm[0, 0].toFloat() // scale X
-        values[1] = tfm[0, 1].toFloat() // skew X
-        values[2] = tfm[0, 2].toFloat() // translate X
-        values[3] = tfm[1, 0].toFloat() // skew Y
-        values[4] = tfm[1, 1].toFloat() // scale Y
-        values[5] = tfm[1, 2].toFloat() // translate Y
-        values[6] = 0f // perspective X
-        values[7] = 0f // perspective Y
-        values[8] = 1f // perspective scale
+        val values = floatArrayOf(
+            tfm[0, 0].toFloat(), // scale X
+            tfm[0, 1].toFloat(), // skew X
+            tfm[0, 2].toFloat(), // translate X
+            tfm[1, 0].toFloat(), // skew Y
+            tfm[1, 1].toFloat(), // scale Y
+            tfm[1, 2].toFloat(), // translate Y
+            0f, // perspective X
+            0f, // perspective Y
+            1f, // perspective scale
+        )
 
         // Create Android Matrix with the transformation
         val androidMatrix = Matrix().apply {
@@ -258,6 +253,16 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun findNonreflectiveSimilarity(fac: Array<FloatArray>, ref: Array<FloatArray>): SimpleMatrix {
+        /**
+         * Estimates a non-reflective similarity transformation that maps a set of source landmarks
+         * to a set of target landmarks. It computes the optimal similarity transformation
+         * (consisting of scaling, rotation, and translation — but excluding reflection) that best
+         * aligns the source points to the target points in a least squares sense.
+         *
+         * @param fac the initial facial landmarks
+         * @param ref the reference points on the output bitmap
+         */
+
         val K = 2
         val M = ref.size
 
@@ -314,13 +319,26 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
             T[1, 2] = 0.0
             T[2, 2] = 1.0
 
-            return T
+             return T
         } else {
-            throw Exception("cp2tform:twoUniquePointsReq")
+            return SimpleMatrix.identity(3)
+
         }
     }
 
     fun computeTFM(uv: Array<FloatArray>, xy: Array<FloatArray>): SimpleMatrix {
+        /**
+         * Computes the transformation matrix. It calls another function called
+         * findNonreflectiveSimilarity. If this fails, it returns the identity matrix sized 3.
+         * Then, computeTFM returns a transformation functions so that the original
+         * points are left unchanged. Ultimately, in case of failure the whole pipeline returns
+         * the unchanged original image.
+         *
+         * @param uv facial landmarks points detected by MLKit
+         * @param xy reference points in the final bitmap
+         * @return tfm transformation function (sized 2x3)
+         */
+
         // Solve for trans1
         val trans1 = findNonreflectiveSimilarity(uv, xy)
 
@@ -350,6 +368,7 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
             norm1.isNaN() -> trans2
             norm2.isNaN() -> trans1
             norm1 <= norm2 -> trans1
+            trans1.isIdentical(SimpleMatrix.identity(3), 1e-8) -> trans1
             else -> trans2
         }
 
@@ -359,6 +378,10 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun tformfwd(trans: SimpleMatrix, uv: Array<FloatArray>): Array<FloatArray> {
+        /**
+         * Applies a 2D affine transformation to a set of points.
+         * Called by findNonreflectiveSimilarity
+         */
         val numPoints = uv.size
         val uvMatrix = SimpleMatrix(numPoints, 3)
         for (i in 0 until numPoints) {
@@ -378,6 +401,9 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun computeNorm(a: Array<FloatArray>, b: Array<FloatArray>): Double {
+        /**
+         * Computes norm between two arrays.
+         */
         var sum = 0.0
         for (i in a.indices) {
             val dx = a[i][0] - b[i][0]
@@ -388,8 +414,10 @@ internal class MlKitFaceDetectionProcessor() : FaceDetectionProcessor {
     }
 
     fun landmarkSetToArray(landmarkSet: FacialLandmarks): Array<FloatArray> {
+        /**
+         * Restructures the facial landmark points for more convenient later processing.
+         */
         // Do not change the order of the different landmarks
-        // otherwise the alignment performance will degrade/not work
         return arrayOf(
             floatArrayOf(landmarkSet.eyeLeft.x, landmarkSet.eyeLeft.y),
             floatArrayOf(landmarkSet.eyeRight.x, landmarkSet.eyeRight.y),
