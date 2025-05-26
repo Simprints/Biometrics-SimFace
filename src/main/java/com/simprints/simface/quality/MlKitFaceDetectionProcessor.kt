@@ -198,9 +198,11 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
      * In case of failure the whole pipeline returns the unchanged original image.
      */
     override fun warpAlignFace(
-        face: FacialLandmarks,
         inputImage: Bitmap,
+        landmarks: FacialLandmarks?,
     ): Bitmap {
+        if (landmarks == null) return inputImage
+
         val ref = arrayOf(
             floatArrayOf(38.2946f, 51.6963f), // Left eye reference point in (112, 112) image
             floatArrayOf(73.5318f, 51.5014f), // Right eye reference point in (112, 112) image
@@ -209,7 +211,7 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
             floatArrayOf(70.7299f, 92.2041f), // Mouth right reference point in (112, 112) image
         )
 
-        val landmarks = landmarkSetToArray(face) // changes format of landmarks
+        val landmarks = landmarkSetToArray(landmarks) // changes format of landmarks
         val tfm = computeTFM(landmarks, ref) // computes 2x3 transformation matrix (tfm)
         val warped = warpAffine(inputImage, tfm) // performs transformation
 

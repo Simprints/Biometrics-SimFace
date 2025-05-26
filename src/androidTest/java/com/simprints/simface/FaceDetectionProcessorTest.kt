@@ -191,7 +191,7 @@ class FaceDetectionProcessorTest {
         val face = faces[0]
 
         val warpedAlignedImage =
-            face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(it, bitmap) }
+            face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(bitmap, it) }
 
         assertTrue(warpedAlignedImage != null)
 

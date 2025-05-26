@@ -21,7 +21,7 @@ interface FaceDetectionProcessor {
     ): Bitmap
 
     fun warpAlignFace(
-        face: FacialLandmarks,
         inputImage: Bitmap,
-    ): Bitmap?
+        landmarks: FacialLandmarks?,
+    ): Bitmap
 }
