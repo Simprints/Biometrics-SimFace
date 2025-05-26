@@ -7,10 +7,10 @@ import android.graphics.Rect
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.biometrics.simface.R
-import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.SimFaceFacade
 import com.simprints.simface.core.Utils.IMAGE_SIZE
+import com.simprints.simface.data.FaceDetection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
@@ -36,7 +36,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val resultDeferred = CompletableDeferred<List<SimFace>>()
+        val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
@@ -55,7 +55,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
-        val resultDeferred = CompletableDeferred<List<SimFace>>()
+        val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
@@ -74,7 +74,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
 
-        val resultDeferred = CompletableDeferred<List<SimFace>>()
+        val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
@@ -91,7 +91,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
 
-        val resultDeferred = CompletableDeferred<List<SimFace>>()
+        val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
@@ -178,7 +178,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val resultDeferred = CompletableDeferred<List<SimFace>>()
+        val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)

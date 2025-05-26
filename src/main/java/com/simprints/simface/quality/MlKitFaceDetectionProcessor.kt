@@ -9,12 +9,12 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceLandmark
-import com.simprints.simface.core.FacialLandmarks
 import com.simprints.simface.core.MLModelManager
-import com.simprints.simface.core.Point2D
-import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.Utils.IMAGE_SIZE
 import com.simprints.simface.core.Utils.clampToBounds
+import com.simprints.simface.data.FaceDetection
+import com.simprints.simface.data.FacialLandmarks
+import com.simprints.simface.data.Point2D
 import org.ejml.dense.row.SingularOps_DDRM
 import org.ejml.simple.SimpleMatrix
 import kotlin.coroutines.resume
@@ -26,7 +26,7 @@ import kotlin.math.sqrt
 internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
     override fun detectFace(
         image: Bitmap,
-        onSuccess: (List<SimFace>) -> Unit,
+        onSuccess: (List<FaceDetection>) -> Unit,
         onFailure: (Exception) -> Unit,
         onCompleted: () -> Unit,
     ) {
@@ -36,9 +36,9 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
         detector
             .process(inputImage)
             .addOnSuccessListener { faces ->
-                val simFaces = mutableListOf<SimFace>()
+                val faceDetections = mutableListOf<FaceDetection>()
                 faces?.forEach { face ->
-                    val simFace = SimFace(
+                    val faceDetection = FaceDetection(
                         sourceWidth = image.width,
                         sourceHeight = image.height,
                         absoluteBoundingBox = face.boundingBox.clampToBounds(
@@ -50,9 +50,9 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
                         landmarks = buildLandmarks(face),
                         quality = calculateFaceQuality(face, image.width, image.height),
                     )
-                    simFaces.add(simFace)
+                    faceDetections.add(faceDetection)
                 }
-                onSuccess(simFaces)
+                onSuccess(faceDetections)
             }.addOnFailureListener { exception ->
                 onFailure(exception)
             }.addOnCompleteListener {
@@ -60,7 +60,7 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
             }
     }
 
-    override suspend fun detectFaceBlocking(image: Bitmap): List<SimFace> {
+    override suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection> {
         val detector = MLModelManager.getFaceDetector()
         val inputImage = InputImage.fromBitmap(image, 0)
 
@@ -68,9 +68,9 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
             detector
                 .process(inputImage)
                 .addOnSuccessListener { faces ->
-                    val simFaces = mutableListOf<SimFace>()
+                    val faceDetections = mutableListOf<FaceDetection>()
                     faces?.forEach { face ->
-                        val simFace = SimFace(
+                        val faceDetection = FaceDetection(
                             sourceWidth = image.width,
                             sourceHeight = image.height,
                             absoluteBoundingBox = face.boundingBox.clampToBounds(
@@ -82,9 +82,9 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
                             quality = calculateFaceQuality(face, image.width, image.height),
                             landmarks = buildLandmarks(face),
                         )
-                        simFaces.add(simFace)
+                        faceDetections.add(faceDetection)
                     }
-                    continuation.resume(simFaces)
+                    continuation.resume(faceDetections)
                 }.addOnFailureListener { exception ->
                     continuation.resumeWithException(exception)
                 }

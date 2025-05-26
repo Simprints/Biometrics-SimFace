@@ -30,6 +30,8 @@ class SimFaceFacade private constructor(
     }
 
     companion object {
+        const val MODEL_VERSION = "SIM_FACE_BASE_1"
+
         @Volatile
         private var instance: SimFaceFacade? = null
 

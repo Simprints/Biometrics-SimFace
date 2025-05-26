@@ -2,18 +2,18 @@ package com.simprints.simface.quality
 
 import android.graphics.Bitmap
 import android.graphics.Rect
-import com.simprints.simface.core.FacialLandmarks
-import com.simprints.simface.core.SimFace
+import com.simprints.simface.data.FaceDetection
+import com.simprints.simface.data.FacialLandmarks
 
 interface FaceDetectionProcessor {
     fun detectFace(
         image: Bitmap,
-        onSuccess: (List<SimFace>) -> Unit,
+        onSuccess: (List<FaceDetection>) -> Unit,
         onFailure: (Exception) -> Unit = {},
         onCompleted: () -> Unit = {},
     )
 
-    suspend fun detectFaceBlocking(image: Bitmap): List<SimFace>
+    suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection>
 
     fun alignFace(
         bitmap: Bitmap,
