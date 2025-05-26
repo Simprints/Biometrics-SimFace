@@ -23,14 +23,16 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.absoluteValue
 import kotlin.math.sqrt
 
-internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
+internal class MlKitFaceDetectionProcessor(
+    private val modelManager: MLModelManager,
+) : FaceDetectionProcessor {
     override fun detectFace(
         image: Bitmap,
         onSuccess: (List<FaceDetection>) -> Unit,
         onFailure: (Exception) -> Unit,
         onCompleted: () -> Unit,
     ) {
-        val detector = MLModelManager.getFaceDetector()
+        val detector = modelManager.getFaceDetector()
         val inputImage = InputImage.fromBitmap(image, 0)
 
         detector
@@ -61,7 +63,7 @@ internal class MlKitFaceDetectionProcessor : FaceDetectionProcessor {
     }
 
     override suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection> {
-        val detector = MLModelManager.getFaceDetector()
+        val detector = modelManager.getFaceDetector()
         val inputImage = InputImage.fromBitmap(image, 0)
 
         return suspendCoroutine { continuation ->

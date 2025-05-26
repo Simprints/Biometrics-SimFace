@@ -6,7 +6,7 @@ import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.simprints.biometrics.simface.ml.EdgefaceSGamma05
 
-object MLModelManager {
+internal class MLModelManager {
     private lateinit var faceEmbeddingModel: EdgefaceSGamma05
     private lateinit var faceDetector: FaceDetector
 

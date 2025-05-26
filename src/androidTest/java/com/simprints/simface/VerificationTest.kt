@@ -19,9 +19,8 @@ class VerificationTest {
     @Before
     fun setup() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val simFaceConfig = SimFaceConfig(context)
-        SimFaceFacade.initialize(simFaceConfig)
-        simFace = SimFaceFacade.getInstance()
+        simFace = SimFaceFacade()
+        simFace.initialize(SimFaceConfig(context))
     }
 
     @Test
@@ -29,7 +28,7 @@ class VerificationTest {
         val array1 = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f, 0.0f))
         val array2 = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f, 0.0f))
 
-        val distance = simFace.matchProcessor.verificationScore(array1, array2)
+        val distance = simFace.getMatchProcessor().verificationScore(array1, array2)
 
         assertEquals(1.0, distance, 0.0001)
     }
@@ -39,7 +38,7 @@ class VerificationTest {
         val array1 = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f))
         val array2 = Utils.floatArrayToByteArray(floatArrayOf(0.0f, 1.0f))
 
-        val distance = simFace.matchProcessor.verificationScore(array1, array2)
+        val distance = simFace.getMatchProcessor().verificationScore(array1, array2)
 
         assertEquals(0.5, distance, 0.0001)
     }
@@ -49,7 +48,7 @@ class VerificationTest {
         val array1 = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 0.0f))
         val array2 = Utils.floatArrayToByteArray(floatArrayOf(-1.0f, 0.0f))
 
-        val distance = simFace.matchProcessor.verificationScore(array1, array2)
+        val distance = simFace.getMatchProcessor().verificationScore(array1, array2)
 
         assertEquals(0.0, distance, 0.0001)
     }
@@ -59,9 +58,8 @@ class VerificationTest {
         val array1 = Utils.floatArrayToByteArray(floatArrayOf(1.0f, 2.0f, 3.0f))
         val array2 = Utils.floatArrayToByteArray(floatArrayOf(4.0f, 5.0f, 6.0f))
 
-        val distance = simFace.matchProcessor.verificationScore(array1, array2)
+        val distance = simFace.getMatchProcessor().verificationScore(array1, array2)
 
         assertTrue(distance > 0.0 && distance < 1.0)
     }
 }
-

@@ -7,54 +7,39 @@ import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
 import com.simprints.simface.quality.MlKitFaceDetectionProcessor
 
-class SimFaceFacade private constructor(
-    config: SimFaceConfig,
-) {
-    // Internal processors
-    val embeddingProcessor: EmbeddingProcessor
-    val matchProcessor: MatchProcessor
-    val faceDetectionProcessor: FaceDetectionProcessor
+class SimFaceFacade {
+    private val initLock = Any()
 
-    init {
+    // Internal processors
+    private lateinit var modelManager: MLModelManager
+    private lateinit var embeddingProcessor: EmbeddingProcessor
+    private lateinit var matchProcessor: MatchProcessor
+    private lateinit var faceDetectionProcessor: FaceDetectionProcessor
+
+    fun initialize(config: SimFaceConfig): Unit = synchronized(initLock) {
         try {
             // Initialize the model manager with the given config
-            MLModelManager.loadModels(config.context)
+            modelManager = MLModelManager()
+            modelManager.loadModels(config.context)
 
             // Initialize processors
-            embeddingProcessor = TensorFlowEmbeddingProcessor()
+            embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)
             matchProcessor = CosineDistanceMatchProcessor()
-            faceDetectionProcessor = MlKitFaceDetectionProcessor()
+            faceDetectionProcessor = MlKitFaceDetectionProcessor(modelManager)
         } catch (e: Exception) {
             throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
         }
     }
 
-    companion object {
-        const val MODEL_VERSION = "SIM_FACE_BASE_1"
-
-        @Volatile
-        private var instance: SimFaceFacade? = null
-
-        fun initialize(config: SimFaceConfig) {
-            synchronized(this) {
-                try {
-                    instance ?: SimFaceFacade(config).also { instance = it }
-                } catch (e: Exception) {
-                    throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
-                }
-            }
-        }
-
-        fun getInstance(): SimFaceFacade = instance ?: throw IllegalStateException("Library not initialized. Call initialize() first.")
-
-        fun release() {
-            try {
-                MLModelManager.close()
-            } catch (e: Exception) {
-                println("Error releasing MLModelManager: ${e.message}")
-            } finally {
-                instance = null
-            }
-        }
+    fun release() = try {
+        modelManager.close()
+    } catch (e: Exception) {
+        println("Error releasing MLModelManager: ${e.message}")
     }
+
+    fun getEmbeddingProcessor(): EmbeddingProcessor = embeddingProcessor
+
+    fun getMatchProcessor(): MatchProcessor = matchProcessor
+
+    fun getFaceDetectionProcessor(): FaceDetectionProcessor = faceDetectionProcessor
 }

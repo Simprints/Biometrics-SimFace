@@ -26,9 +26,8 @@ class FaceDetectionProcessorTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        val simFaceConfig = SimFaceConfig(context)
-        SimFaceFacade.initialize(simFaceConfig)
-        simFace = SimFaceFacade.getInstance()
+        simFace = SimFaceFacade()
+        simFace.initialize(SimFaceConfig(context))
     }
 
     @Test
@@ -38,7 +37,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -57,7 +56,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -76,7 +75,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -93,7 +92,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -108,7 +107,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val faces = simFace.faceDetectionProcessor.detectFaceBlocking(bitmap)
+        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
@@ -120,7 +119,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
-        val faces = simFace.faceDetectionProcessor.detectFaceBlocking(bitmap)
+        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
@@ -132,7 +131,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
 
-        val faces = simFace.faceDetectionProcessor.detectFaceBlocking(bitmap)
+        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
 
         assertTrue(faces.isEmpty())
     }
@@ -142,7 +141,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
 
-        val faces = simFace.faceDetectionProcessor.detectFaceBlocking(bitmap)
+        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
 
         assertTrue(faces.size == 5)
     }
@@ -153,7 +152,7 @@ class FaceDetectionProcessorTest {
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(50, 50, 150, 150)
 
-        val croppedBitmap = simFace.faceDetectionProcessor.alignFace(bitmap, boundingBox)
+        val croppedBitmap = simFace.getFaceDetectionProcessor().alignFace(bitmap, boundingBox)
 
         assertTrue(boundingBox.width() == croppedBitmap.width)
         assertTrue(boundingBox.height() == croppedBitmap.height)
@@ -170,7 +169,7 @@ class FaceDetectionProcessorTest {
             bitmap.height + 50,
         )
 
-        simFace.faceDetectionProcessor.alignFace(bitmap, boundingBox)
+        simFace.getFaceDetectionProcessor().alignFace(bitmap, boundingBox)
     }
 
     @Test
@@ -180,7 +179,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.faceDetectionProcessor.detectFace(bitmap, onSuccess = { faces ->
+        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -191,7 +190,7 @@ class FaceDetectionProcessorTest {
         val face = faces[0]
 
         val warpedAlignedImage =
-            face.landmarks?.let { simFace.faceDetectionProcessor.warpAlignFace(bitmap, it) }
+            face.landmarks?.let { simFace.getFaceDetectionProcessor().warpAlignFace(bitmap, it) }
 
         assertTrue(warpedAlignedImage != null)
 
