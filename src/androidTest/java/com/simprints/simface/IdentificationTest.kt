@@ -3,8 +3,8 @@ package com.simprints.simface
 import android.content.Context
 import androidx.test.core.app.*
 import androidx.test.ext.junit.runners.*
+import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
-import com.simprints.simface.core.SimFaceFacade
 import com.simprints.simface.core.Utils
 import org.junit.Assert
 import org.junit.Before
@@ -13,12 +13,12 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IdentificationTest {
-    private lateinit var simFace: SimFaceFacade
+    private lateinit var simFace: SimFace
 
     @Before
     fun setup() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        simFace = SimFaceFacade()
+        simFace = SimFace()
         simFace.initialize(SimFaceConfig(context))
     }
 

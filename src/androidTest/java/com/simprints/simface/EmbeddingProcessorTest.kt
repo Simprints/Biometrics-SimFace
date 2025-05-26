@@ -6,8 +6,8 @@ import android.graphics.BitmapFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.biometrics.simface.R
+import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
-import com.simprints.simface.core.SimFaceFacade
 import com.simprints.simface.core.Utils
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
@@ -17,13 +17,13 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class EmbeddingProcessorTest {
-    private lateinit var simFace: SimFaceFacade
+    private lateinit var simFace: SimFace
     private lateinit var context: Context
 
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        simFace = SimFaceFacade()
+        simFace = SimFace()
         simFace.initialize(SimFaceConfig(context))
     }
 

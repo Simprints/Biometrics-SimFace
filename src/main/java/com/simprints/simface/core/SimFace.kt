@@ -7,7 +7,7 @@ import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
 import com.simprints.simface.quality.MlKitFaceDetectionProcessor
 
-class SimFaceFacade {
+class SimFace {
     private val initLock = Any()
 
     // Internal processors
