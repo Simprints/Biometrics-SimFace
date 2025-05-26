@@ -37,9 +37,15 @@ class SimFaceFacade {
         println("Error releasing MLModelManager: ${e.message}")
     }
 
+    fun getTemplateVersion(): String = TEMPLATE_VERSION
+
     fun getEmbeddingProcessor(): EmbeddingProcessor = embeddingProcessor
 
     fun getMatchProcessor(): MatchProcessor = matchProcessor
 
     fun getFaceDetectionProcessor(): FaceDetectionProcessor = faceDetectionProcessor
+
+    companion object {
+        private const val TEMPLATE_VERSION = "SIM_FACE_BASE_1"
+    }
 }
