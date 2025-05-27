@@ -93,25 +93,6 @@ internal class MlKitFaceDetectionProcessor(
         }
     }
 
-    override fun alignFace(
-        bitmap: Bitmap,
-        faceBoundingBox: Rect,
-    ): Bitmap {
-        // Ensure the Rect is valid and within the bounds of the Bitmap
-        if (faceBoundingBox.left < 0 ||
-            faceBoundingBox.top < 0 ||
-            faceBoundingBox.right > bitmap.width ||
-            faceBoundingBox.bottom > bitmap.height
-        ) {
-            throw IllegalArgumentException("The provided faceBoundingBox is out of the Bitmap bounds: $faceBoundingBox")
-        }
-        if (faceBoundingBox.width() <= 0 || faceBoundingBox.height() <= 0) {
-            throw IllegalArgumentException("The provided faceBoundingBox has invalid dimensions: $faceBoundingBox")
-        }
-
-        return Bitmap.createBitmap(bitmap, faceBoundingBox.left, faceBoundingBox.top, faceBoundingBox.width(), faceBoundingBox.height())
-    }
-
     private fun calculateFaceQuality(
         face: Face,
         imageWidth: Int,
@@ -192,13 +173,25 @@ internal class MlKitFaceDetectionProcessor(
         )
     }
 
-    /**
-     * Takes as input the facial landmarks obtained by MLKit and the original image
-     * and it returns a (112, 112) image, so that it can be directly processed by the face
-     * recognition model. A warp transformation is applied to the original image so that in the
-     * output image the positions of the landmarks corresponds the expected ones, which are defined here in the ref variable.
-     * In case of failure the whole pipeline returns the unchanged original image.
-     */
+    override fun cropAlignFace(
+        bitmap: Bitmap,
+        faceBoundingBox: Rect,
+    ): Bitmap {
+        // Ensure the Rect is valid and within the bounds of the Bitmap
+        if (faceBoundingBox.left < 0 ||
+            faceBoundingBox.top < 0 ||
+            faceBoundingBox.right > bitmap.width ||
+            faceBoundingBox.bottom > bitmap.height
+        ) {
+            throw IllegalArgumentException("The provided faceBoundingBox is out of the Bitmap bounds: $faceBoundingBox")
+        }
+        if (faceBoundingBox.width() <= 0 || faceBoundingBox.height() <= 0) {
+            throw IllegalArgumentException("The provided faceBoundingBox has invalid dimensions: $faceBoundingBox")
+        }
+
+        return Bitmap.createBitmap(bitmap, faceBoundingBox.left, faceBoundingBox.top, faceBoundingBox.width(), faceBoundingBox.height())
+    }
+
     override fun warpAlignFace(
         inputImage: Bitmap,
         landmarks: FacialLandmarks?,

@@ -152,7 +152,7 @@ class FaceDetectionProcessorTest {
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
         val boundingBox = Rect(50, 50, 150, 150)
 
-        val croppedBitmap = simFace.getFaceDetectionProcessor().alignFace(bitmap, boundingBox)
+        val croppedBitmap = simFace.getFaceDetectionProcessor().cropAlignFace(bitmap, boundingBox)
 
         assertTrue(boundingBox.width() == croppedBitmap.width)
         assertTrue(boundingBox.height() == croppedBitmap.height)
@@ -169,7 +169,7 @@ class FaceDetectionProcessorTest {
             bitmap.height + 50,
         )
 
-        simFace.getFaceDetectionProcessor().alignFace(bitmap, boundingBox)
+        simFace.getFaceDetectionProcessor().cropAlignFace(bitmap, boundingBox)
     }
 
     @Test

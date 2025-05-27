@@ -15,11 +15,30 @@ interface FaceDetectionProcessor {
 
     suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection>
 
-    fun alignFace(
+    /**
+     * Crops the image according to the provided bounding box.
+     *
+     * NOTE: `cropAlignFace` and `warpAlignFace` are mutually exclusive operations.
+     *
+     * @param bitmap the original image
+     * @param faceBoundingBox the bounding box of the face
+     */
+    fun cropAlignFace(
         bitmap: Bitmap,
         faceBoundingBox: Rect,
     ): Bitmap
 
+    /**
+     * Applies a warp transformation to the face image so that position of the landmarks corresponds to locations
+     * expected by the face recognition model.
+     *
+     * In case of failure the whole pipeline returns the unchanged original image.
+     *
+     * NOTE: `cropAlignFace` and `warpAlignFace` are mutually exclusive operations.
+     *
+     * @param inputImage the original image
+     * @param landmarks the facial landmarks obtained by MLKit
+     */
     fun warpAlignFace(
         inputImage: Bitmap,
         landmarks: FacialLandmarks?,
