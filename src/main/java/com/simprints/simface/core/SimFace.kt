@@ -31,19 +31,38 @@ class SimFace {
         }
     }
 
-    fun release() = try {
-        modelManager.close()
-    } catch (e: Exception) {
-        println("Error releasing MLModelManager: ${e.message}")
+    fun release() = synchronized(initLock) {
+        try {
+            if (this::modelManager.isInitialized) {
+                modelManager.close()
+            }
+        } catch (e: Exception) {
+            println("Error releasing MLModelManager: ${e.message}")
+        }
     }
 
     fun getTemplateVersion(): String = TEMPLATE_VERSION
 
-    fun getEmbeddingProcessor(): EmbeddingProcessor = embeddingProcessor
+    fun getEmbeddingProcessor(): EmbeddingProcessor {
+        if (!this::embeddingProcessor.isInitialized) {
+            throw IllegalStateException("SimFace.initialize() should be called first")
+        }
+        return embeddingProcessor
+    }
 
-    fun getMatchProcessor(): MatchProcessor = matchProcessor
+    fun getMatchProcessor(): MatchProcessor {
+        if (!this::matchProcessor.isInitialized) {
+            throw IllegalStateException("SimFace.initialize() should be called first")
+        }
+        return matchProcessor
+    }
 
-    fun getFaceDetectionProcessor(): FaceDetectionProcessor = faceDetectionProcessor
+    fun getFaceDetectionProcessor(): FaceDetectionProcessor {
+        if (!this::matchProcessor.isInitialized) {
+            throw IllegalStateException("SimFace.initialize() should be called first")
+        }
+        return faceDetectionProcessor
+    }
 
     companion object {
         private const val TEMPLATE_VERSION = "SIM_FACE_BASE_1"
