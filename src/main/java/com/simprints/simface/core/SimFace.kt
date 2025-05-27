@@ -1,6 +1,8 @@
 package com.simprints.simface.core
 
 import android.graphics.Bitmap
+import com.google.mlkit.vision.face.FaceDetector
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.simprints.simface.data.FaceDetection
 import com.simprints.simface.embedding.EmbeddingProcessor
 import com.simprints.simface.embedding.TensorFlowEmbeddingProcessor
@@ -8,6 +10,7 @@ import com.simprints.simface.matcher.CosineDistanceMatchProcessor
 import com.simprints.simface.matcher.MatchProcessor
 import com.simprints.simface.quality.FaceDetectionProcessor
 import com.simprints.simface.quality.MlKitFaceDetectionProcessor
+import com.google.mlkit.vision.face.FaceDetection as MlKitFaceDetection
 
 class SimFace {
     private val initLock = Any()
@@ -16,6 +19,8 @@ class SimFace {
     private lateinit var modelManager: MLModelManager
     private lateinit var embeddingProcessor: EmbeddingProcessor
     private lateinit var matchProcessor: MatchProcessor
+
+    private lateinit var faceDetector: FaceDetector
     private lateinit var faceDetectionProcessor: FaceDetectionProcessor
 
     /**
@@ -30,7 +35,18 @@ class SimFace {
             // Initialize processors
             embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)
             matchProcessor = CosineDistanceMatchProcessor()
-            faceDetectionProcessor = MlKitFaceDetectionProcessor(modelManager)
+
+            // Configure and load MLKit face detection model
+            val realTimeOpts = FaceDetectorOptions
+                .Builder()
+                .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setMinFaceSize(0.20f)
+                .build()
+            faceDetector = MlKitFaceDetection.getClient(realTimeOpts)
+            faceDetectionProcessor = MlKitFaceDetectionProcessor(faceDetector)
         } catch (e: Exception) {
             throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
         }
@@ -43,6 +59,9 @@ class SimFace {
         try {
             if (this::modelManager.isInitialized) {
                 modelManager.close()
+            }
+            if (this::faceDetector.isInitialized) {
+                faceDetector.close()
             }
         } catch (e: Exception) {
             println("Error releasing MLModelManager: ${e.message}")

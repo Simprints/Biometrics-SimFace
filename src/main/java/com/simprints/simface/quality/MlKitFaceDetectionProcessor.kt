@@ -4,8 +4,8 @@ import android.graphics.Bitmap
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
+import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceLandmark
-import com.simprints.simface.core.MLModelManager
 import com.simprints.simface.core.Utils.clampToBounds
 import com.simprints.simface.data.FaceDetection
 import com.simprints.simface.data.FacialLandmarks
@@ -16,7 +16,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.math.absoluteValue
 
 internal class MlKitFaceDetectionProcessor(
-    private val modelManager: MLModelManager,
+    private val faceDetector: FaceDetector,
 ) : FaceDetectionProcessor {
     override fun detectFace(
         image: Bitmap,
@@ -24,10 +24,9 @@ internal class MlKitFaceDetectionProcessor(
         onFailure: (Exception) -> Unit,
         onCompleted: () -> Unit,
     ) {
-        val detector = modelManager.getFaceDetector()
         val inputImage = InputImage.fromBitmap(image, 0)
 
-        detector
+        faceDetector
             .process(inputImage)
             .addOnSuccessListener { faces ->
                 val faceDetections = mutableListOf<FaceDetection>()
@@ -55,11 +54,10 @@ internal class MlKitFaceDetectionProcessor(
     }
 
     override suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection> {
-        val detector = modelManager.getFaceDetector()
         val inputImage = InputImage.fromBitmap(image, 0)
 
         return suspendCoroutine { continuation ->
-            detector
+            faceDetector
                 .process(inputImage)
                 .addOnSuccessListener { faces ->
                     val faceDetections = mutableListOf<FaceDetection>()
@@ -164,17 +162,4 @@ internal class MlKitFaceDetectionProcessor(
             Point2D(mouthRight.x, mouthRight.y),
         )
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
