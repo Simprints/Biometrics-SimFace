@@ -32,8 +32,8 @@ class IdentificationTest {
             Utils.floatArrayToByteArray(floatArrayOf(0.707f, 0.707f)), // 45 degrees to referenceArray
         )
 
-        val sortedMap = simFace.getMatchProcessor().identificationScore(referenceArray, arrayList)
-        val sortedDistances = sortedMap.values.toList()
+        val sortedScores = simFace.identificationScore(referenceArray, arrayList)
+        val sortedDistances = sortedScores.map { it.second }
 
         // Closest match (identical vector) should have a score of 1
         Assert.assertEquals(1.0, sortedDistances[0], 0.0001)

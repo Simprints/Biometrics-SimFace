@@ -2,6 +2,6 @@ package com.simprints.simface.embedding
 
 import android.graphics.Bitmap
 
-interface EmbeddingProcessor {
+internal interface EmbeddingProcessor {
     fun getEmbedding(bitmap: Bitmap): ByteArray
 }

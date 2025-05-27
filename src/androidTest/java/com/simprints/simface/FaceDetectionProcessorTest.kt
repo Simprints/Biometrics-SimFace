@@ -35,7 +35,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
+        simFace.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -54,7 +54,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
+        simFace.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -73,7 +73,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
+        simFace.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -90,7 +90,7 @@ class FaceDetectionProcessorTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
+        simFace.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)
@@ -105,7 +105,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
+        val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
@@ -117,7 +117,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
-        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
+        val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
@@ -129,7 +129,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
 
-        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
+        val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isEmpty())
     }
@@ -139,7 +139,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
 
-        val faces = simFace.getFaceDetectionProcessor().detectFaceBlocking(bitmap)
+        val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.size == 5)
     }

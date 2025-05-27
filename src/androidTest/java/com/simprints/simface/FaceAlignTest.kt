@@ -62,7 +62,7 @@ class FaceAlignTest {
 
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
-        simFace.getFaceDetectionProcessor().detectFace(bitmap, onSuccess = { faces ->
+        simFace.detectFace(bitmap, onSuccess = { faces ->
             resultDeferred.complete(faces)
         }, onFailure = { error ->
             resultDeferred.completeExceptionally(error)

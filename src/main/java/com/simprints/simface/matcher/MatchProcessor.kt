@@ -1,6 +1,6 @@
 package com.simprints.simface.matcher
 
-interface MatchProcessor {
+internal interface MatchProcessor {
     fun verificationScore(
         probe: ByteArray,
         matchAgainst: ByteArray,
@@ -9,5 +9,5 @@ interface MatchProcessor {
     fun identificationScore(
         probe: ByteArray,
         matchReferences: List<ByteArray>,
-    ): Map<ByteArray, Double>
+    ): List<Pair<ByteArray, Double>>
 }

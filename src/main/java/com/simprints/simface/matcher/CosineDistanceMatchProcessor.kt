@@ -34,9 +34,7 @@ internal class CosineDistanceMatchProcessor : MatchProcessor {
     override fun identificationScore(
         probe: ByteArray,
         matchReferences: List<ByteArray>,
-    ): Map<ByteArray, Double> = matchReferences
-        .associateWith { matchAgainst -> verificationScore(probe, matchAgainst) }
-        .toList()
-        .sortedByDescending { (_, distance) -> distance }
-        .toMap()
+    ): List<Pair<ByteArray, Double>> = matchReferences
+        .map { matchAgainst -> probe to verificationScore(probe, matchAgainst) }
+        .sortedByDescending { it.second }
 }

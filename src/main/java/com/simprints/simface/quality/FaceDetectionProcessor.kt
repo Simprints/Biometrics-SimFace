@@ -3,7 +3,7 @@ package com.simprints.simface.quality
 import android.graphics.Bitmap
 import com.simprints.simface.data.FaceDetection
 
-interface FaceDetectionProcessor {
+internal interface FaceDetectionProcessor {
     fun detectFace(
         image: Bitmap,
         onSuccess: (List<FaceDetection>) -> Unit,
@@ -12,5 +12,4 @@ interface FaceDetectionProcessor {
     )
 
     suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection>
-
 }
