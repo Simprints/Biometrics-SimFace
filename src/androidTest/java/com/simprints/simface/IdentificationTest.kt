@@ -1,10 +1,10 @@
 package com.simprints.simface
 
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.core.app.*
+import androidx.test.ext.junit.runners.*
+import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
-import com.simprints.simface.core.SimFaceFacade
 import com.simprints.simface.core.Utils
 import org.junit.Assert
 import org.junit.Before
@@ -13,14 +13,13 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class IdentificationTest {
-    private lateinit var simFace: SimFaceFacade
+    private lateinit var simFace: SimFace
 
     @Before
     fun setup() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val simFaceConfig = SimFaceConfig(context)
-        SimFaceFacade.Companion.initialize(simFaceConfig)
-        simFace = SimFaceFacade.Companion.getInstance()
+        simFace = SimFace()
+        simFace.initialize(SimFaceConfig(context))
     }
 
     @Test
@@ -33,8 +32,8 @@ class IdentificationTest {
             Utils.floatArrayToByteArray(floatArrayOf(0.707f, 0.707f)), // 45 degrees to referenceArray
         )
 
-        val sortedMap = simFace.matchProcessor.identificationScore(referenceArray, arrayList)
-        val sortedDistances = sortedMap.values.toList()
+        val sortedScores = simFace.identificationScore(referenceArray, arrayList)
+        val sortedDistances = sortedScores.map { it.second }
 
         // Closest match (identical vector) should have a score of 1
         Assert.assertEquals(1.0, sortedDistances[0], 0.0001)

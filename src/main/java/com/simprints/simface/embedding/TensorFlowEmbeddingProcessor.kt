@@ -10,7 +10,9 @@ import org.tensorflow.lite.support.common.TensorProcessor
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 
-internal class TensorFlowEmbeddingProcessor : EmbeddingProcessor {
+internal class TensorFlowEmbeddingProcessor(
+    private val modelManager: MLModelManager,
+) : EmbeddingProcessor {
     override fun getEmbedding(bitmap: Bitmap): ByteArray {
         val imageTensorProcessor = TensorProcessor
             .Builder()
@@ -18,7 +20,7 @@ internal class TensorFlowEmbeddingProcessor : EmbeddingProcessor {
             .add(ReshapeOp())
             .build()
 
-        val model = MLModelManager.getFaceEmbeddingModel()
+        val model = modelManager.getFaceEmbeddingModel()
 
         val resizedBitmap = if (bitmap.height != IMAGE_SIZE || bitmap.width != IMAGE_SIZE) {
             try {

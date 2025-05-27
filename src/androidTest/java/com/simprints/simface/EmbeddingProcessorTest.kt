@@ -6,8 +6,8 @@ import android.graphics.BitmapFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.simprints.biometrics.simface.R
+import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
-import com.simprints.simface.core.SimFaceFacade
 import com.simprints.simface.core.Utils
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
@@ -17,15 +17,14 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class EmbeddingProcessorTest {
-    private lateinit var simFace: SimFaceFacade
+    private lateinit var simFace: SimFace
     private lateinit var context: Context
 
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        val simFaceConfig = SimFaceConfig(context)
-        SimFaceFacade.initialize(simFaceConfig)
-        simFace = SimFaceFacade.getInstance()
+        simFace = SimFace()
+        simFace.initialize(SimFaceConfig(context))
     }
 
     @Test
@@ -33,7 +32,7 @@ class EmbeddingProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val result = simFace.embeddingProcessor.getEmbedding(bitmap)
+        val result = simFace.getEmbedding(bitmap)
         val resultFloat = Utils.byteArrayToFloatArray(result)
 
         assertTrue(Utils.byteArrayToFloatArray(result).size == 512)
@@ -110,8 +109,8 @@ class EmbeddingProcessorTest {
         val bitmap2: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
 
-        val embedding1 = simFace.embeddingProcessor.getEmbedding(bitmap1)
-        val embedding2 = simFace.embeddingProcessor.getEmbedding(bitmap2)
+        val embedding1 = simFace.getEmbedding(bitmap1)
+        val embedding2 = simFace.getEmbedding(bitmap2)
 
         assertTrue(!embedding1.contentEquals(embedding2)) // Embeddings should be different
     }
@@ -121,10 +120,9 @@ class EmbeddingProcessorTest {
         val bitmap: Bitmap =
             BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
-        val embedding1 = simFace.embeddingProcessor.getEmbedding(bitmap)
-        val embedding2 = simFace.embeddingProcessor.getEmbedding(bitmap)
+        val embedding1 = simFace.getEmbedding(bitmap)
+        val embedding2 = simFace.getEmbedding(bitmap)
 
         assertArrayEquals(embedding1, embedding2) // Embeddings should be identical
     }
-
 }
