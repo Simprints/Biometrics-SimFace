@@ -6,7 +6,7 @@ plugins {
 
 val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
-val projectVersion = "2025.1.3"
+val projectVersion = "2025.1.4"
 
 android {
 
@@ -55,7 +55,6 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
 }
 
-
 publishing {
     repositories {
         maven {
@@ -73,6 +72,18 @@ publishing {
             artifactId = projectArtifactId
             version = projectVersion
             afterEvaluate { artifact(tasks.getByName("bundleReleaseAar")) }
+
+            pom.withXml {
+                val dependenciesNode = asNode().appendNode("dependencies")
+
+                configurations.getByName("api").dependencies.map { dependency ->
+                    dependenciesNode.appendNode("dependency").also {
+                        it.appendNode("groupId", dependency.group)
+                        it.appendNode("artifactId", dependency.name)
+                        it.appendNode("version", dependency.version)
+                    }
+                }
+            }
         }
     }
 }
