@@ -39,7 +39,7 @@ implementation("com.simprints.biometrics:simface:2025.2.0")
 // Initialize library configuration
 val simFace = SimFace()
 val simFaceConfig = SimFaceConfig(context)
-simFace.initialize(SimFaceConfig(applicationContext))
+simFace.initialize(simFaceConfig)
 
 // Load a bitmap image for processing
 val faceImage: Bitmap =
@@ -67,7 +67,7 @@ lifecycleScope.launch {
 // Initialize library configuration
 val simFace = SimFace()
 val simFaceConfig = SimFaceConfig(context)
-simFace.initialize(SimFaceConfig(applicationContext))
+simFace.initialize(simFaceConfig)
 
 // Load a bitmap image for processing
 val faceImage: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
