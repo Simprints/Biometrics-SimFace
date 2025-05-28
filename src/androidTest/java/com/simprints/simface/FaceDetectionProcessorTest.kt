@@ -2,10 +2,8 @@ package com.simprints.simface
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.test.core.app.*
 import androidx.test.ext.junit.runners.*
-import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.data.FaceDetection
@@ -30,9 +28,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun normal_image_gets_high_score() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.detectFace(bitmap, onSuccess = { faces ->
@@ -49,9 +45,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun bad_image_gets_low_score() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_bad_face")
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.detectFace(bitmap, onSuccess = { faces ->
@@ -68,9 +62,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun no_faces_in_flower_image() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_flower")
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.detectFace(bitmap, onSuccess = { faces ->
@@ -85,9 +77,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun image_with_multiple_faces() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_multiple_faces")
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.detectFace(bitmap, onSuccess = { faces ->
@@ -102,9 +92,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun normal_image_gets_high_score_blocking() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
@@ -114,9 +102,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun bad_image_gets_low_score_blocking() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_bad_face")
         val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isNotEmpty())
@@ -126,9 +112,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun no_faces_in_flower_image_blocking() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_flower")
         val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.isEmpty())
@@ -136,9 +120,7 @@ class FaceDetectionProcessorTest {
 
     @Test
     fun image_with_multiple_faces_blocking() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_multiple_faces)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_multiple_faces")
         val faces = simFace.detectFaceBlocking(bitmap)
 
         assertTrue(faces.size == 5)

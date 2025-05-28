@@ -2,10 +2,8 @@ package com.simprints.simface
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Rect
 import androidx.test.core.app.*
-import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.Utils.IMAGE_SIZE
@@ -31,8 +29,7 @@ class FaceAlignTest {
 
     @Test
     fun crop_image_with_valid_bounding_box() {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_flower")
         val boundingBox = Rect(50, 50, 150, 150)
 
         val croppedBitmap = cropAlignFace(bitmap, boundingBox)
@@ -43,8 +40,7 @@ class FaceAlignTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun crop_image_with_invalid_bounding_box() {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_flower)
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_flower")
         val boundingBox = Rect(
             -50,
             -50,
@@ -57,9 +53,7 @@ class FaceAlignTest {
 
     @Test
     fun align_face_with_valid_bounding_box() = runTest {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val resultDeferred = CompletableDeferred<List<FaceDetection>>()
 
         simFace.detectFace(bitmap, onSuccess = { faces ->
