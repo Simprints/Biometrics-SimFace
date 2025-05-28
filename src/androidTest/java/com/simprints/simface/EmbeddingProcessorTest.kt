@@ -2,10 +2,8 @@ package com.simprints.simface
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.simprints.biometrics.simface.R
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.Utils
@@ -29,9 +27,7 @@ class EmbeddingProcessorTest {
 
     @Test
     fun get_embedding_with_image() {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
-
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val result = simFace.getEmbedding(bitmap)
         val resultFloat = Utils.byteArrayToFloatArray(result)
 
@@ -104,10 +100,8 @@ class EmbeddingProcessorTest {
 
     @Test
     fun compare_embeddings_between_different_images() {
-        val bitmap1: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
-        val bitmap2: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_bad_face)
+        val bitmap1: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
+        val bitmap2: Bitmap = context.loadBitmapFromTestResources("royalty_free_bad_face")
 
         val embedding1 = simFace.getEmbedding(bitmap1)
         val embedding2 = simFace.getEmbedding(bitmap2)
@@ -117,8 +111,7 @@ class EmbeddingProcessorTest {
 
     @Test
     fun consistency_test_with_same_image() {
-        val bitmap: Bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
+        val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
 
         val embedding1 = simFace.getEmbedding(bitmap)
         val embedding2 = simFace.getEmbedding(bitmap)
