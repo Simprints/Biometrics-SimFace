@@ -7,6 +7,7 @@ import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.Utils
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -30,6 +31,11 @@ class CustomModelTest {
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
         simFace = SimFace()
+    }
+
+    @After
+    fun cleanup() {
+        simFace.release()
     }
 
     @Test
