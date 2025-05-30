@@ -26,8 +26,17 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Run Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: ./gradlew connectedCheck
+          heap-size: 512M
+          script: |
+            # https://github.com/ReactiveCircus/android-emulator-runner/issues/264 
+            sleep 5
+            $ANDROID_HOME/platform-tools/adb shell su root "setprop ctl.restart zygote"
+            sleep 10
+            ./gradlew connectedCheck
