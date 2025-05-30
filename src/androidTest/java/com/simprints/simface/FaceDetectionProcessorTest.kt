@@ -9,6 +9,7 @@ import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.data.FaceDetection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -24,6 +25,11 @@ class FaceDetectionProcessorTest {
         context = ApplicationProvider.getApplicationContext()
         simFace = SimFace()
         simFace.initialize(SimFaceConfig(context))
+    }
+
+    @After
+    fun cleanup() {
+        simFace.release()
     }
 
     @Test

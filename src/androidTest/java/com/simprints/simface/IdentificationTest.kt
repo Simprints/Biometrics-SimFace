@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.*
 import com.simprints.simface.core.SimFace
 import com.simprints.simface.core.SimFaceConfig
 import com.simprints.simface.core.Utils
+import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +21,11 @@ class IdentificationTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         simFace = SimFace()
         simFace.initialize(SimFaceConfig(context))
+    }
+
+    @After
+    fun cleanup() {
+        simFace.release()
     }
 
     @Test
