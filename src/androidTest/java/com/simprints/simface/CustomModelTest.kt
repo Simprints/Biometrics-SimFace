@@ -9,12 +9,8 @@ import com.simprints.simface.core.Utils
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 
 /**
  * This test class makes it trivially easy to run tests with new model files:
@@ -40,7 +36,7 @@ class CustomModelTest {
 
     @Test
     fun test_processes_face_with_custom_model() = runTest {
-        val testModelFile = openTestModelFile()
+        val testModelFile = context.openTestModelFile()
 
         simFace.initialize(
             SimFaceConfig(
@@ -55,16 +51,6 @@ class CustomModelTest {
         val resultFloat = getFaceEmbeddingFromBitmap(bitmap)
 
         assertArrayEquals(GOOD_FACE_EMBEDDING, resultFloat, 0.1F)
-    }
-
-    private fun openTestModelFile(resourceName: String = "edgeface_test"): File {
-        val resourceId = context.resources.getIdentifier(resourceName, "raw", context.packageName)
-        assertTrue("Test resource '$resourceName' not found in package '${context.packageName}'", resourceId != 0)
-
-        val inputStream: InputStream = context.resources.openRawResource(resourceId)
-        val tempFile = File.createTempFile("test_model", ".tflite", context.cacheDir)
-        FileOutputStream(tempFile).use { outputStream -> inputStream.use { input -> input.copyTo(outputStream) } }
-        return tempFile
     }
 
     private fun getFaceEmbeddingFromBitmap(bitmap: Bitmap): FloatArray = simFace
