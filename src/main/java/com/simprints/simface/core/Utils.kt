@@ -1,11 +1,14 @@
 package com.simprints.simface.core
 
+import android.graphics.Bitmap
 import android.graphics.Rect
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 internal object Utils {
     const val IMAGE_SIZE = 112
+    const val OUTPUT_EMBEDDING_SIZE = 512
+    const val DEFAULT_TEMPLATE_VERSION = "SIM_FACE_BASE_1"
 
     /**
      * Converts a FloatArray to a ByteArray.
@@ -48,4 +51,41 @@ internal object Utils {
         right.coerceAtMost(width),
         bottom.coerceAtMost(height),
     )
+
+    /**
+     * Convert image into a 1D array of pixel color values in RGB order.
+     */
+    internal fun Bitmap.toIntArray(imageSize: Int): IntArray {
+        val intValues = IntArray(imageSize * imageSize)
+        val resultArray = IntArray(imageSize * imageSize * 3)
+
+        getPixels(intValues, 0, imageSize, 0, 0, imageSize, imageSize)
+
+        var index = 0
+        for (pixel in intValues) {
+            resultArray[index++] = (pixel shr 16) and 255 // Red
+            resultArray[index++] = (pixel shr 8) and 255 // Green
+            resultArray[index++] = pixel and 255 // Blue
+        }
+        return resultArray
+    }
+
+    /**
+     * Convert image into a 1D array of pixel color
+     * values in RGB order in [0,1] range.
+     */
+    internal fun Bitmap.toFloatArray(imageSize: Int): FloatArray {
+        val intValues = IntArray(imageSize * imageSize)
+        val resultArray = FloatArray(imageSize * imageSize * 3)
+
+        getPixels(intValues, 0, imageSize, 0, 0, imageSize, imageSize)
+
+        var index = 0
+        for (pixel in intValues) {
+            resultArray[index++] = ((pixel shr 16) and 255) / 255f // Red
+            resultArray[index++] = ((pixel shr 8) and 255) / 255f // Green
+            resultArray[index++] = (pixel and 255) / 255f // Blue
+        }
+        return resultArray
+    }
 }

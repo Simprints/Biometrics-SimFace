@@ -32,9 +32,6 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        mlModelBinding = true
-    }
 }
 
 dependencies {
