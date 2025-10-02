@@ -6,12 +6,12 @@ plugins {
 
 val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
-val projectVersion = "2025.3.0"
+val projectVersion = "2025.3.1"
 
 android {
 
     namespace = "$projectGroupId.$projectArtifactId"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 23
