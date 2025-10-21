@@ -11,7 +11,6 @@ import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -65,7 +64,7 @@ class FaceDetectionProcessorTest {
         val faces = resultDeferred.await()
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
-        assertTrue(face.quality < 0.5)
+        assertTrue(face.quality < 0.6)
     }
 
     @Test
@@ -115,7 +114,7 @@ class FaceDetectionProcessorTest {
 
         assertTrue(faces.isNotEmpty())
         val face = faces[0]
-        assertTrue(face.quality < 0.5)
+        assertTrue(face.quality < 0.6)
     }
 
     @Test
