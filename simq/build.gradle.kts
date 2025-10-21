@@ -46,7 +46,7 @@ dependencies {
     api(libs.opencv)
     
     testImplementation(libs.junit)
-    testImplementation(libs.roboelectric)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
