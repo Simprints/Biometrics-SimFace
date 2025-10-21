@@ -8,6 +8,9 @@ val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
 val projectVersion = "2025.3.1"
 
+group = projectGroupId
+version = projectVersion
+
 android {
 
     namespace = "$projectGroupId.$projectArtifactId"
@@ -35,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":simq"))
 
     // Tensorflow versions that works with Edgeface
     api(libs.tensorflow.lite.support)

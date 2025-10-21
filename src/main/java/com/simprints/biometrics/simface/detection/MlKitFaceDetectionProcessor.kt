@@ -10,10 +10,12 @@ import com.simprints.biometrics.simface.Utils.clampToBounds
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.biometrics.simface.data.FacialLandmarks
 import com.simprints.biometrics.simface.data.Point2D
+import com.simprints.simq.QualityParameters
+import com.simprints.simq.QualityWeights
+import com.simprints.simq.SimQ
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.absoluteValue
 
 internal class MlKitFaceDetectionProcessor(
     private val faceDetector: FaceDetector,
@@ -41,7 +43,7 @@ internal class MlKitFaceDetectionProcessor(
                         yaw = face.headEulerAngleY,
                         roll = face.headEulerAngleZ,
                         landmarks = buildLandmarks(face),
-                        quality = calculateFaceQuality(face, image.width, image.height),
+                        quality = calculateFaceQuality(face, image),
                     )
                     faceDetections.add(faceDetection)
                 }
@@ -71,7 +73,7 @@ internal class MlKitFaceDetectionProcessor(
                             ),
                             yaw = face.headEulerAngleY,
                             roll = face.headEulerAngleZ,
-                            quality = calculateFaceQuality(face, image.width, image.height),
+                            quality = calculateFaceQuality(face, image),
                             landmarks = buildLandmarks(face),
                         )
                         faceDetections.add(faceDetection)
@@ -85,52 +87,57 @@ internal class MlKitFaceDetectionProcessor(
 
     private fun calculateFaceQuality(
         face: Face,
-        imageWidth: Int,
-        imageHeight: Int,
+        image: Bitmap,
     ): Float {
         return try {
-            var score = 0.0
+            val boundingBox = face.boundingBox.clampToBounds(image.width, image.height)
+            val faceBitmap = Bitmap.createBitmap(
+                image,
+                boundingBox.left,
+                boundingBox.top,
+                boundingBox.width(),
+                boundingBox.height()
+            )
 
-            // These should add to 1.0
-            val faceRotationWeight = 0.3
-            val faceTiltWeight = 0.05
-            val faceNodWeight = 0.05
-            val faceSizeWeight = 0.3
-            val eyeOpennessWeight = 0.3
+            val parameters = QualityParameters(
+                maxAlignmentAngle = 20.0,
+                maxIndividualAngle = 25.0,
+                minBlur = 50.0,
+                maxBlur = 100.0,
+                minBrightness = 30.0,
+                optimalBrightnessLow = 80.0,
+                optimalBrightnessHigh = 150.0,
+                maxBrightness = 190.0,
+                brightnessSteepness = 0.3,
+                minContrast = 30.0,
+                maxContrast = 47.0
+            )
 
-            // Face Rotation Score
-            score += faceRotationWeight * (1.0 - (face.headEulerAngleY.absoluteValue / 90.0))
+            val weights = QualityWeights(
+                alignment = 0.28,
+                blur = 0.3,
+                brightness = 0.1,
+                contrast = 0.3,
+                eyeOpenness = 0.02
+            )
 
-            // Face Tilt Score
-            score += faceTiltWeight * (1.0 - (face.headEulerAngleZ.absoluteValue / 90.0))
-
-            // Face Nod Score
-            score += faceNodWeight * (1.0 - (face.headEulerAngleX.absoluteValue / 90.0))
-
-            // Face Size Relative to Image Size
-            val faceArea = face.boundingBox.width() * face.boundingBox.height()
-            val imageArea = imageWidth * imageHeight
-            score += faceSizeWeight * (faceArea.toDouble() / imageArea)
-
-            // Eye Openness Score
-            score += eyeOpennessWeight * calculateEyeOpennessScore(face)
-
-            // TODO: Blur Detection
-            // TODO: Brightness and Contrast Score
-
-            // Just in case limit to 0-1 range
-            return score.coerceIn(0.0, 1.0).toFloat()
+            val qualityScore = SimQ.calculateFaceQuality(
+                bitmap = faceBitmap,
+                pitch = face.headEulerAngleX.toDouble(),
+                yaw = face.headEulerAngleY.toDouble(),
+                roll = face.headEulerAngleZ.toDouble(),
+                leftEyeOpenness = face.leftEyeOpenProbability?.toDouble(),
+                rightEyeOpenness = face.rightEyeOpenProbability?.toDouble(),
+                weights = weights,
+                parameters = parameters
+            )
+            
+            faceBitmap.recycle()
+            
+            qualityScore
         } catch (e: Exception) {
-            println("Error calculating face quality: ${e.message}")
             0.0f
         }
-    }
-
-    private fun calculateEyeOpennessScore(face: Face): Double {
-        val leftEyeScore = face.leftEyeOpenProbability ?: return 0.0
-        val rightEyeScore = face.rightEyeOpenProbability ?: return 0.0
-
-        return (leftEyeScore + rightEyeScore) / 2.0
     }
 
     private fun buildLandmarks(face: Face): FacialLandmarks? {
