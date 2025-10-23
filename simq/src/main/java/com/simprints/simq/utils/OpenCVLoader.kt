@@ -8,9 +8,8 @@ import org.opencv.android.OpenCVLoader as AndroidOpenCVLoader
  * Ensures the native library is loaded only once during the application lifecycle.
  */
 object OpenCVLoader {
-    
     private const val TAG = "OpenCV"
-    
+
     fun init() {
         if (!AndroidOpenCVLoader.initLocal()) {
             Log.e(TAG, "OpenCV not loaded!")

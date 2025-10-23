@@ -3,13 +3,13 @@ package com.simprints.biometrics.simface.embedding
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.test.core.app.*
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.loadBitmapFromTestResources
 import com.simprints.biometrics.openTestModelFile
 import com.simprints.biometrics.simface.SimFaceConfig
 import com.simprints.biometrics.simface.Utils
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Test
 
@@ -32,7 +32,9 @@ class CustomModelTest {
 
     @After
     fun cleanup() {
-        modelManager.close()
+        if (::modelManager.isInitialized) {
+            modelManager.close()
+        }
     }
 
     @Test
@@ -53,7 +55,10 @@ class CustomModelTest {
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val resultFloat = getFaceEmbeddingFromBitmap(bitmap)
 
-        assertArrayEquals(GOOD_FACE_EMBEDDING, resultFloat, 0.1F)
+        assertThat(resultFloat)
+            .usingTolerance(0.1)
+            .containsExactly(GOOD_FACE_EMBEDDING)
+            .inOrder()
     }
 
     private fun getFaceEmbeddingFromBitmap(bitmap: Bitmap): FloatArray = embeddingProcessor

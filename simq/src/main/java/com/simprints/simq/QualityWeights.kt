@@ -9,7 +9,7 @@ data class QualityWeights(
     val blur: Double = 0.3,
     val brightness: Double = 0.3,
     val contrast: Double = 0.1,
-    val eyeOpenness: Double = 0.0
+    val eyeOpenness: Double = 0.0,
 ) {
     companion object {
         val DEFAULT = QualityWeights()

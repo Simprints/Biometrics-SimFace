@@ -19,7 +19,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -30,7 +30,7 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -44,9 +44,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     api(libs.opencv)
-    
-    testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
+
+    androidTestImplementation(libs.truth)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
 }

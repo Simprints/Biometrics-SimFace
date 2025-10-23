@@ -9,11 +9,10 @@ tensorflowLiteSupport = "0.5.0"
 faceDetection = "16.1.7"
 ejmlSimple = "0.44.0"
 coreKtx = "1.17.0"
-junit = "4.13.2"
 appcompat = "1.6.1"
 material = "1.10.0"
 opencv = "4.10.0"
-robolectric = "4.11.1"
+truth = "1.4.5"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -25,11 +24,10 @@ tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", v
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
 ejml-simple = { module = "org.ejml:ejml-simple", version.ref = "ejmlSimple" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-robolectric = {module = "org.robolectric:robolectric", version.ref = "robolectric" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
 
 [plugins]
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

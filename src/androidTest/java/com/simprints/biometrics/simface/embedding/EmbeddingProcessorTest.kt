@@ -4,12 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.test.core.app.*
 import androidx.test.ext.junit.runners.*
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.loadBitmapFromTestResources
 import com.simprints.biometrics.simface.SimFaceConfig
 import com.simprints.biometrics.simface.Utils
 import org.junit.After
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,10 +37,11 @@ class EmbeddingProcessorTest {
         val result = embeddingProcessor.getEmbedding(bitmap)
         val resultFloat = Utils.byteArrayToFloatArray(result)
 
-        assertTrue(Utils.byteArrayToFloatArray(result).size == 512)
+        assertThat(resultFloat.size).isEqualTo(512)
 
-        // Verify results
-        assertArrayEquals(GOOD_FACE_EMBEDDING, resultFloat, 0.1F)
+        assertThat(resultFloat)
+            .usingTolerance(0.1)
+            .containsExactly(GOOD_FACE_EMBEDDING)
     }
 
     @Test
@@ -52,7 +52,7 @@ class EmbeddingProcessorTest {
         val embedding1 = embeddingProcessor.getEmbedding(bitmap1)
         val embedding2 = embeddingProcessor.getEmbedding(bitmap2)
 
-        assertTrue(!embedding1.contentEquals(embedding2)) // Embeddings should be different
+        assertThat(embedding1).isNotEqualTo(embedding2)
     }
 
     @Test
@@ -62,6 +62,6 @@ class EmbeddingProcessorTest {
         val embedding1 = embeddingProcessor.getEmbedding(bitmap)
         val embedding2 = embeddingProcessor.getEmbedding(bitmap)
 
-        assertArrayEquals(embedding1, embedding2) // Embeddings should be identical
+        assertThat(embedding1).isEqualTo(embedding2)
     }
 }

@@ -19,6 +19,7 @@ import kotlin.coroutines.suspendCoroutine
 
 internal class MlKitFaceDetectionProcessor(
     private val faceDetector: FaceDetector,
+    private val qualityProcessor: SimQ,
 ) : FaceDetectionProcessor {
     override fun detectFace(
         image: Bitmap,
@@ -33,26 +34,25 @@ internal class MlKitFaceDetectionProcessor(
             .addOnSuccessListener { faces ->
                 val faceDetections = mutableListOf<FaceDetection>()
                 faces?.forEach { face ->
-                    val faceDetection = FaceDetection(
-                        sourceWidth = image.width,
-                        sourceHeight = image.height,
-                        absoluteBoundingBox = face.boundingBox.clampToBounds(
-                            image.width,
-                            image.height,
-                        ),
-                        yaw = face.headEulerAngleY,
-                        roll = face.headEulerAngleZ,
-                        landmarks = buildLandmarks(face),
-                        quality = calculateFaceQuality(face, image),
-                    )
+                    val faceDetection =
+                        FaceDetection(
+                            sourceWidth = image.width,
+                            sourceHeight = image.height,
+                            absoluteBoundingBox =
+                                face.boundingBox.clampToBounds(
+                                    image.width,
+                                    image.height,
+                                ),
+                            yaw = face.headEulerAngleY,
+                            roll = face.headEulerAngleZ,
+                            landmarks = buildLandmarks(face),
+                            quality = calculateFaceQuality(face, image),
+                        )
                     faceDetections.add(faceDetection)
                 }
                 onSuccess(faceDetections)
-            }.addOnFailureListener { exception ->
-                onFailure(exception)
-            }.addOnCompleteListener {
-                onCompleted()
-            }
+            }.addOnFailureListener { exception -> onFailure(exception) }
+            .addOnCompleteListener { onCompleted() }
     }
 
     override suspend fun detectFaceBlocking(image: Bitmap): List<FaceDetection> {
@@ -64,18 +64,20 @@ internal class MlKitFaceDetectionProcessor(
                 .addOnSuccessListener { faces ->
                     val faceDetections = mutableListOf<FaceDetection>()
                     faces?.forEach { face ->
-                        val faceDetection = FaceDetection(
-                            sourceWidth = image.width,
-                            sourceHeight = image.height,
-                            absoluteBoundingBox = face.boundingBox.clampToBounds(
-                                image.width,
-                                image.height,
-                            ),
-                            yaw = face.headEulerAngleY,
-                            roll = face.headEulerAngleZ,
-                            quality = calculateFaceQuality(face, image),
-                            landmarks = buildLandmarks(face),
-                        )
+                        val faceDetection =
+                            FaceDetection(
+                                sourceWidth = image.width,
+                                sourceHeight = image.height,
+                                absoluteBoundingBox =
+                                    face.boundingBox.clampToBounds(
+                                        image.width,
+                                        image.height,
+                                    ),
+                                yaw = face.headEulerAngleY,
+                                roll = face.headEulerAngleZ,
+                                quality = calculateFaceQuality(face, image),
+                                landmarks = buildLandmarks(face),
+                            )
                         faceDetections.add(faceDetection)
                     }
                     continuation.resume(faceDetections)
@@ -88,18 +90,19 @@ internal class MlKitFaceDetectionProcessor(
     private fun calculateFaceQuality(
         face: Face,
         image: Bitmap,
-    ): Float {
-        return try {
-            val boundingBox = face.boundingBox.clampToBounds(image.width, image.height)
-            val faceBitmap = Bitmap.createBitmap(
+    ): Float = try {
+        val boundingBox = face.boundingBox.clampToBounds(image.width, image.height)
+        val faceBitmap =
+            Bitmap.createBitmap(
                 image,
                 boundingBox.left,
                 boundingBox.top,
                 boundingBox.width(),
-                boundingBox.height()
+                boundingBox.height(),
             )
 
-            val parameters = QualityParameters(
+        val parameters =
+            QualityParameters(
                 maxAlignmentAngle = 20.0,
                 maxIndividualAngle = 25.0,
                 minBlur = 50.0,
@@ -110,18 +113,20 @@ internal class MlKitFaceDetectionProcessor(
                 maxBrightness = 190.0,
                 brightnessSteepness = 0.3,
                 minContrast = 30.0,
-                maxContrast = 47.0
+                maxContrast = 47.0,
             )
 
-            val weights = QualityWeights(
+        val weights =
+            QualityWeights(
                 alignment = 0.28,
                 blur = 0.3,
                 brightness = 0.1,
                 contrast = 0.3,
-                eyeOpenness = 0.02
+                eyeOpenness = 0.02,
             )
 
-            val qualityScore = SimQ.calculateFaceQuality(
+        val qualityScore =
+            qualityProcessor.calculateFaceQuality(
                 bitmap = faceBitmap,
                 pitch = face.headEulerAngleX.toDouble(),
                 yaw = face.headEulerAngleY.toDouble(),
@@ -129,37 +134,41 @@ internal class MlKitFaceDetectionProcessor(
                 leftEyeOpenness = face.leftEyeOpenProbability?.toDouble(),
                 rightEyeOpenness = face.rightEyeOpenProbability?.toDouble(),
                 weights = weights,
-                parameters = parameters
+                parameters = parameters,
             )
-            
-            faceBitmap.recycle()
-            
-            qualityScore
-        } catch (e: Exception) {
-            0.0f
-        }
+
+        faceBitmap.recycle()
+
+        qualityScore
+    } catch (e: Exception) {
+        0.0f
     }
 
     private fun buildLandmarks(face: Face): FacialLandmarks? {
-        val leftEye = face.getLandmark(FaceLandmark.LEFT_EYE)?.position
-            ?: face.getContour(FaceContour.LEFT_EYE)?.points?.getOrNull(4)
-            ?: return null
+        val leftEye =
+            face.getLandmark(FaceLandmark.LEFT_EYE)?.position
+                ?: face.getContour(FaceContour.LEFT_EYE)?.points?.getOrNull(4)
+                ?: return null
 
-        val rightEye = face.getLandmark(FaceLandmark.RIGHT_EYE)?.position
-            ?: face.getContour(FaceContour.RIGHT_EYE)?.points?.getOrNull(4)
-            ?: return null
+        val rightEye =
+            face.getLandmark(FaceLandmark.RIGHT_EYE)?.position
+                ?: face.getContour(FaceContour.RIGHT_EYE)?.points?.getOrNull(4)
+                ?: return null
 
-        val nose = face.getLandmark(FaceLandmark.NOSE_BASE)?.position
-            ?: face.getContour(FaceContour.NOSE_BRIDGE)?.points?.lastOrNull()
-            ?: return null
+        val nose =
+            face.getLandmark(FaceLandmark.NOSE_BASE)?.position
+                ?: face.getContour(FaceContour.NOSE_BRIDGE)?.points?.lastOrNull()
+                ?: return null
 
-        val mouthLeft = face.getLandmark(FaceLandmark.MOUTH_LEFT)?.position
-            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.lastOrNull()
-            ?: return null
+        val mouthLeft =
+            face.getLandmark(FaceLandmark.MOUTH_LEFT)?.position
+                ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.lastOrNull()
+                ?: return null
 
-        val mouthRight = face.getLandmark(FaceLandmark.MOUTH_RIGHT)?.position
-            ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.firstOrNull()
-            ?: return null
+        val mouthRight =
+            face.getLandmark(FaceLandmark.MOUTH_RIGHT)?.position
+                ?: face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points?.firstOrNull()
+                ?: return null
 
         return FacialLandmarks(
             Point2D(leftEye.x, leftEye.y),

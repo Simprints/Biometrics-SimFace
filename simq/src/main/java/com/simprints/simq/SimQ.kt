@@ -6,21 +6,18 @@ import com.simprints.simq.analysis.BlurAnalysis
 import com.simprints.simq.analysis.BrightnessAnalysis
 import com.simprints.simq.analysis.ContrastAnalysis
 import com.simprints.simq.utils.OpenCVLoader
-import com.simprints.simq.utils.QualityUtils
+import com.simprints.simq.utils.centerCrop
+import com.simprints.simq.utils.resizeToArea
 
-object SimQ {
-    
+class SimQ {
     init {
         OpenCVLoader.init()
     }
-    
+
     /**
      * Calculates face quality score (0.0 - 1.0).
      *
      * @param bitmap The cropped face bitmap
-     * @param imageWidth Width of the original full image (not used in current implementation)
-     * @param imageHeight Height of the original full image (not used in current implementation)
-     * @param boundingBox Bounding box of the face in the original image (not used in current implementation)
      * @param pitch Face pitch angle in degrees (head nod, default: 0.0)
      * @param yaw Face yaw angle in degrees (head rotation, default: 0.0)
      * @param roll Face roll angle in degrees (head tilt, default: 0.0)
@@ -33,7 +30,6 @@ object SimQ {
      * @param parameters Custom quality parameters (optional)
      * @return Quality score between 0.0 and 1.0, or 0.0 if calculation fails
      */
-    @JvmStatic
     fun calculateFaceQuality(
         bitmap: Bitmap,
         pitch: Double = 0.0,
@@ -45,78 +41,87 @@ object SimQ {
         horizontalDisplacement: Float = 0.0f,
         verticalDisplacement: Float = 0.0f,
         weights: QualityWeights = QualityWeights.DEFAULT,
-        parameters: QualityParameters = QualityParameters.DEFAULT
-    ): Float {
-        return try {
-            // Resize bitmap to target area (256x256 = 65536)
-            val resizedBitmap = QualityUtils.resizeBitmap(bitmap, 65536.0)
-            
-            // Crop the bitmap
-            val croppedBitmap = QualityUtils.centerCropBitmap(
-                resizedBitmap,
+        parameters: QualityParameters = QualityParameters.DEFAULT,
+    ): Float = try {
+        // Resize bitmap to target area (256x256 = 65536)
+        val resizedBitmap = bitmap.resizeToArea(65536.0)
+
+        // Crop the bitmap
+        val croppedBitmap =
+            resizedBitmap.centerCrop(
                 centerCrop,
                 horizontalDisplacement,
-                verticalDisplacement
+                verticalDisplacement,
             )
-            
-            var totalScore = 0.0
-            var totalWeight = 0.0
-            
-            val alignmentScore = AlignmentAnalysis.calculateScore(
-                pitch, yaw, roll,
+
+        var totalScore = 0.0
+        val totalWeight =
+            weights.alignment +
+                weights.blur +
+                weights.brightness +
+                weights.contrast +
+                (
+                    if (leftEyeOpenness != null && rightEyeOpenness != null) {
+                        weights.eyeOpenness
+                    } else {
+                        0.0
+                    }
+                )
+
+        val alignmentScore =
+            AlignmentAnalysis.calculateScore(
+                pitch,
+                yaw,
+                roll,
                 parameters.maxAlignmentAngle,
-                parameters.maxIndividualAngle
+                parameters.maxIndividualAngle,
             )
-            totalScore += weights.alignment * alignmentScore
-            totalWeight += weights.alignment
-            
-            val blurScore = BlurAnalysis.calculateScore(
+        totalScore += weights.alignment * alignmentScore
+
+        val blurScore =
+            BlurAnalysis.calculateScore(
                 croppedBitmap,
                 parameters.minBlur,
-                parameters.maxBlur
+                parameters.maxBlur,
             )
-            totalScore += weights.blur * blurScore
-            totalWeight += weights.blur
-            
-            val brightnessScore = BrightnessAnalysis.calculateScore(
+        totalScore += weights.blur * blurScore
+
+        val brightnessScore =
+            BrightnessAnalysis.calculateScore(
                 croppedBitmap,
                 parameters.minBrightness,
                 parameters.optimalBrightnessLow,
                 parameters.optimalBrightnessHigh,
                 parameters.maxBrightness,
-                parameters.brightnessSteepness
+                parameters.brightnessSteepness,
             )
-            totalScore += weights.brightness * brightnessScore
-            totalWeight += weights.brightness
-            
-            val contrastScore = ContrastAnalysis.calculateScore(
+        totalScore += weights.brightness * brightnessScore
+
+        val contrastScore =
+            ContrastAnalysis.calculateScore(
                 croppedBitmap,
                 parameters.minContrast,
-                parameters.maxContrast
+                parameters.maxContrast,
             )
-            totalScore += weights.contrast * contrastScore
-            totalWeight += weights.contrast
-            
-            if (leftEyeOpenness != null && rightEyeOpenness != null) {
-                val eyeScore = (leftEyeOpenness + rightEyeOpenness) / 2.0
-                totalScore += weights.eyeOpenness * eyeScore
-                totalWeight += weights.eyeOpenness
-            }
-            
-            // Clean up
-            if (croppedBitmap != bitmap && croppedBitmap != resizedBitmap) {
-                croppedBitmap.recycle()
-            }
-            if (resizedBitmap != bitmap) {
-                resizedBitmap.recycle()
-            }
-            
-            // Normalize and clamp to 0-1 range
-            val finalScore = if (totalWeight > 0) totalScore / totalWeight else 0.0
-            finalScore.coerceIn(0.0, 1.0).toFloat()
-            
-        } catch (e: Exception) {
-            0.0f
+        totalScore += weights.contrast * contrastScore
+
+        if (leftEyeOpenness != null && rightEyeOpenness != null) {
+            val eyeScore = (leftEyeOpenness + rightEyeOpenness) / 2.0
+            totalScore += weights.eyeOpenness * eyeScore
         }
+
+        // Clean up
+        if (croppedBitmap != bitmap && croppedBitmap != resizedBitmap) {
+            croppedBitmap.recycle()
+        }
+        if (resizedBitmap != bitmap) {
+            resizedBitmap.recycle()
+        }
+
+        // Normalize and clamp to 0-1 range
+        val finalScore = if (totalWeight > 0) totalScore / totalWeight else 0.0
+        finalScore.coerceIn(0.0, 1.0).toFloat()
+    } catch (e: Exception) {
+        0.0f
     }
 }

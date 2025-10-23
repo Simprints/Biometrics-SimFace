@@ -20,5 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "simface"
+rootProject.name = "Biometrics-SimFace"
+include(":Biometrics-SimFace")
 include(":simq")
