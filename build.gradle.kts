@@ -38,7 +38,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":simq"))
+    api(project(":simq"))
 
     // Tensorflow versions that works with Edgeface
     api(libs.tensorflow.lite.support)

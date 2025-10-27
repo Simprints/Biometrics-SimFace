@@ -1,17 +1,17 @@
 package com.simprints.simq.utils
 
 import android.graphics.Bitmap
+import kotlin.math.pow
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDouble
 import org.opencv.imgproc.Imgproc
-import kotlin.math.pow
 
 /**
- * Interface for image quality analysis operations.
- * Provides high-level methods for analyzing image properties like brightness, blur, and contrast.
+ * Interface for image quality analysis operations. Provides high-level methods for analyzing image
+ * properties like brightness, blur, and contrast.
  */
 interface ImageAnalyzer {
     /**
@@ -23,8 +23,8 @@ interface ImageAnalyzer {
     fun calculateBrightness(bitmap: Bitmap): Double
 
     /**
-     * Calculates the Laplacian variance to measure image sharpness/blur.
-     * Higher values indicate sharper images, lower values indicate more blur.
+     * Calculates the Laplacian variance to measure image sharpness/blur. Higher values indicate
+     * sharper images, lower values indicate more blur.
      *
      * @param bitmap The input bitmap image
      * @param kernelSize Kernel size for the Laplacian operator (default: 5)
@@ -33,8 +33,8 @@ interface ImageAnalyzer {
     fun calculateLaplacianVariance(bitmap: Bitmap, kernelSize: Int = 5): Double
 
     /**
-     * Calculates the standard deviation to measure image contrast.
-     * Higher values indicate higher contrast.
+     * Calculates the standard deviation to measure image contrast. Higher values indicate higher
+     * contrast.
      *
      * @param bitmap The input bitmap image
      * @return Standard deviation value representing contrast

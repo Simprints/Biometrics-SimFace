@@ -18,8 +18,8 @@ class SimQTest {
     }
 
     private fun createTestBitmap(
-        width: Int = 256,
-        height: Int = 256,
+            width: Int = 256,
+            height: Int = 256,
     ): Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
     @Test
@@ -36,20 +36,20 @@ class SimQTest {
         val bitmap = createTestBitmap()
 
         val perfectScore =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 0.0,
-                yaw = 0.0,
-                roll = 0.0,
-            )
+                simQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 0.0,
+                        yaw = 0.0,
+                        roll = 0.0,
+                )
 
         val poorAlignmentScore =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 20.0,
-                yaw = 20.0,
-                roll = 20.0,
-            )
+                simQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 20.0,
+                        yaw = 20.0,
+                        roll = 20.0,
+                )
 
         assertThat(perfectScore).isAtLeast(poorAlignmentScore)
     }
@@ -59,12 +59,12 @@ class SimQTest {
         val bitmap = createTestBitmap()
 
         val quality =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 30.0,
-                yaw = 0.0,
-                roll = 0.0,
-            )
+                simQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 30.0,
+                        yaw = 0.0,
+                        roll = 0.0,
+                )
 
         assertThat(quality).isLessThan(0.5f)
     }
@@ -72,36 +72,31 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithEyeOpennessIncludesItInCalculation() {
         val bitmap = createTestBitmap()
+        val simQWithEyeWeight =
+                SimQ(
+                        faceWeights =
+                                QualityWeights(
+                                        alignment = 0.3,
+                                        blur = 0.2,
+                                        brightness = 0.2,
+                                        contrast = 0.1,
+                                        eyeOpenness = 0.2,
+                                ),
+                )
 
         val openEyesScore =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                leftEyeOpenness = 1.0,
-                rightEyeOpenness = 1.0,
-                weights =
-                    QualityWeights(
-                        alignment = 0.3,
-                        blur = 0.2,
-                        brightness = 0.2,
-                        contrast = 0.1,
-                        eyeOpenness = 0.2,
-                    ),
-            )
+                simQWithEyeWeight.calculateFaceQuality(
+                        bitmap = bitmap,
+                        leftEyeOpenness = 1.0,
+                        rightEyeOpenness = 1.0,
+                )
 
         val closedEyesScore =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                leftEyeOpenness = 0.0,
-                rightEyeOpenness = 0.0,
-                weights =
-                    QualityWeights(
-                        alignment = 0.3,
-                        blur = 0.2,
-                        brightness = 0.2,
-                        contrast = 0.1,
-                        eyeOpenness = 0.2,
-                    ),
-            )
+                simQWithEyeWeight.calculateFaceQuality(
+                        bitmap = bitmap,
+                        leftEyeOpenness = 0.0,
+                        rightEyeOpenness = 0.0,
+                )
 
         assertThat(openEyesScore).isAtLeast(closedEyesScore)
     }
@@ -109,14 +104,14 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithoutEyeOpennessIgnoresEyeWeight() {
         val bitmap = createTestBitmap()
+        val simQWithEyeWeight = SimQ(faceWeights = QualityWeights(eyeOpenness = 0.2))
 
         val qualityNoEyes =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                leftEyeOpenness = null,
-                rightEyeOpenness = null,
-                weights = QualityWeights(eyeOpenness = 0.2),
-            )
+                simQWithEyeWeight.calculateFaceQuality(
+                        bitmap = bitmap,
+                        leftEyeOpenness = null,
+                        rightEyeOpenness = null,
+                )
 
         assertThat(qualityNoEyes).isAtLeast(0.0f)
         assertThat(qualityNoEyes).isAtMost(1.0f)
@@ -125,14 +120,14 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithOnlyLeftEyeOpennessProvided() {
         val bitmap = createTestBitmap()
+        val simQWithEyeWeight = SimQ(faceWeights = QualityWeights(eyeOpenness = 0.2))
 
         val quality =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                leftEyeOpenness = 1.0,
-                rightEyeOpenness = null,
-                weights = QualityWeights(eyeOpenness = 0.2),
-            )
+                simQWithEyeWeight.calculateFaceQuality(
+                        bitmap = bitmap,
+                        leftEyeOpenness = 1.0,
+                        rightEyeOpenness = null,
+                )
 
         assertThat(quality).isIn(Range.closed(0.0f, 1.0f))
     }
@@ -140,38 +135,44 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithCustomWeightsAffectsResult() {
         val bitmap = createTestBitmap()
+        val alignmentWeightedSimQ =
+                SimQ(
+                        faceWeights =
+                                QualityWeights(
+                                        alignment = 0.9,
+                                        blur = 0.025,
+                                        brightness = 0.025,
+                                        contrast = 0.025,
+                                        eyeOpenness = 0.025,
+                                ),
+                )
+        val otherWeightedSimQ =
+                SimQ(
+                        faceWeights =
+                                QualityWeights(
+                                        alignment = 0.025,
+                                        blur = 0.325,
+                                        brightness = 0.325,
+                                        contrast = 0.325,
+                                        eyeOpenness = 0.0,
+                                ),
+                )
 
         val alignmentWeighted =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 20.0,
-                yaw = 20.0,
-                roll = 20.0,
-                weights =
-                    QualityWeights(
-                        alignment = 0.9,
-                        blur = 0.025,
-                        brightness = 0.025,
-                        contrast = 0.025,
-                        eyeOpenness = 0.025,
-                    ),
-            )
+                alignmentWeightedSimQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 20.0,
+                        yaw = 20.0,
+                        roll = 20.0,
+                )
 
         val otherWeighted =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 20.0,
-                yaw = 20.0,
-                roll = 20.0,
-                weights =
-                    QualityWeights(
-                        alignment = 0.025,
-                        blur = 0.325,
-                        brightness = 0.325,
-                        contrast = 0.325,
-                        eyeOpenness = 0.0,
-                    ),
-            )
+                otherWeightedSimQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 20.0,
+                        yaw = 20.0,
+                        roll = 20.0,
+                )
 
         assertThat(alignmentWeighted).isLessThan(otherWeighted)
     }
@@ -179,32 +180,38 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithCustomParametersAffectsThresholds() {
         val bitmap = createTestBitmap()
+        val strictSimQ =
+                SimQ(
+                        faceParameters =
+                                QualityParameters(
+                                        maxAlignmentAngle = 10.0,
+                                        maxIndividualAngle = 20.0,
+                                ),
+                )
+        val lenientSimQ =
+                SimQ(
+                        faceParameters =
+                                QualityParameters(
+                                        maxAlignmentAngle = 30.0,
+                                        maxIndividualAngle = 40.0,
+                                ),
+                )
 
         val strictQuality =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 15.0,
-                yaw = 15.0,
-                roll = 15.0,
-                parameters =
-                    QualityParameters(
-                        maxAlignmentAngle = 10.0,
-                        maxIndividualAngle = 20.0,
-                    ),
-            )
+                strictSimQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 15.0,
+                        yaw = 15.0,
+                        roll = 15.0,
+                )
 
         val lenientQuality =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                pitch = 15.0,
-                yaw = 15.0,
-                roll = 15.0,
-                parameters =
-                    QualityParameters(
-                        maxAlignmentAngle = 30.0,
-                        maxIndividualAngle = 40.0,
-                    ),
-            )
+                lenientSimQ.calculateFaceQuality(
+                        bitmap = bitmap,
+                        pitch = 15.0,
+                        yaw = 15.0,
+                        roll = 15.0,
+                )
 
         assertThat(lenientQuality).isAtLeast(strictQuality)
     }
@@ -236,10 +243,8 @@ class SimQTest {
     fun calculateFaceQualityIsConsistentWithSameInputs() {
         val bitmap = createTestBitmap()
 
-        val quality1 =
-            simQ.calculateFaceQuality(bitmap, pitch = 10.0, yaw = 5.0, roll = -3.0)
-        val quality2 =
-            simQ.calculateFaceQuality(bitmap, pitch = 10.0, yaw = 5.0, roll = -3.0)
+        val quality1 = simQ.calculateFaceQuality(bitmap, pitch = 10.0, yaw = 5.0, roll = -3.0)
+        val quality2 = simQ.calculateFaceQuality(bitmap, pitch = 10.0, yaw = 5.0, roll = -3.0)
 
         assertThat(quality1).isWithin(0.001f).of(quality2)
     }
@@ -247,19 +252,19 @@ class SimQTest {
     @Test
     fun calculateFaceQualityWithZeroWeightsReturnsZeroOrHandledGracefully() {
         val bitmap = createTestBitmap()
+        val zeroWeightsSimQ =
+                SimQ(
+                        faceWeights =
+                                QualityWeights(
+                                        alignment = 0.0,
+                                        blur = 0.0,
+                                        brightness = 0.0,
+                                        contrast = 0.0,
+                                        eyeOpenness = 0.0,
+                                ),
+                )
 
-        val quality =
-            simQ.calculateFaceQuality(
-                bitmap = bitmap,
-                weights =
-                    QualityWeights(
-                        alignment = 0.0,
-                        blur = 0.0,
-                        brightness = 0.0,
-                        contrast = 0.0,
-                        eyeOpenness = 0.0,
-                    ),
-            )
+        val quality = zeroWeightsSimQ.calculateFaceQuality(bitmap = bitmap)
 
         assertThat(quality).isIn(Range.closed(0.0f, 1.0f))
     }

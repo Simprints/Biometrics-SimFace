@@ -33,8 +33,11 @@ class SimFace {
             // Initialize the model manager with the given config
             modelManager = MLModelManager(config)
 
-            // Initialize SimQ quality processor
-            qualityProcessor = SimQ()
+            // Initialize SimQ quality processor with optional custom weights and parameters
+            qualityProcessor = SimQ(
+                faceWeights = config.qualityWeights ?: com.simprints.simq.QualityWeights.DEFAULT,
+                faceParameters = config.qualityParameters ?: com.simprints.simq.QualityParameters.DEFAULT
+            )
 
             // Initialize processors
             embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)

@@ -9,7 +9,10 @@ import com.simprints.simq.utils.OpenCVLoader
 import com.simprints.simq.utils.centerCrop
 import com.simprints.simq.utils.resizeToArea
 
-class SimQ {
+class SimQ(
+        private val faceWeights: QualityWeights = QualityWeights.DEFAULT,
+        private val faceParameters: QualityParameters = QualityParameters.DEFAULT,
+) {
     init {
         OpenCVLoader.init()
     }
@@ -26,8 +29,6 @@ class SimQ {
      * @param centerCrop Fraction of the bitmap to use for quality assessment (default: 0.5)
      * @param horizontalDisplacement Horizontal displacement for center crop (default: 0.0)
      * @param verticalDisplacement Vertical displacement for center crop (default: 0.0)
-     * @param weights Custom weights for quality metrics (optional)
-     * @param parameters Custom quality parameters (optional)
      * @return Quality score between 0.0 and 1.0, or 0.0 if calculation fails
      */
     fun calculateFaceQuality(
@@ -40,10 +41,9 @@ class SimQ {
             centerCrop: Float = 0.5f,
             horizontalDisplacement: Float = 0.0f,
             verticalDisplacement: Float = 0.0f,
-            weights: QualityWeights = QualityWeights.DEFAULT,
-            parameters: QualityParameters = QualityParameters.DEFAULT,
     ): Float =
             try {
+
                 // Resize bitmap to target area (256x256 = 65536)
                 val resizedBitmap = bitmap.resizeToArea(65536.0)
 
@@ -57,12 +57,12 @@ class SimQ {
 
                 var totalScore = 0.0
                 val totalWeight =
-                        weights.alignment +
-                                weights.blur +
-                                weights.brightness +
-                                weights.contrast +
+                        faceWeights.alignment +
+                                faceWeights.blur +
+                                faceWeights.brightness +
+                                faceWeights.contrast +
                                 (if (leftEyeOpenness != null && rightEyeOpenness != null) {
-                                    weights.eyeOpenness
+                                    faceWeights.eyeOpenness
                                 } else {
                                     0.0
                                 })
@@ -72,41 +72,41 @@ class SimQ {
                                 pitch,
                                 yaw,
                                 roll,
-                                parameters.maxAlignmentAngle,
-                                parameters.maxIndividualAngle,
+                                faceParameters.maxAlignmentAngle,
+                                faceParameters.maxIndividualAngle,
                         )
-                totalScore += weights.alignment * alignmentScore
+                totalScore += faceWeights.alignment * alignmentScore
 
                 val blurScore =
                         BlurAnalysis.calculateScore(
                                 croppedBitmap,
-                                parameters.minBlur,
-                                parameters.maxBlur,
+                                faceParameters.minBlur,
+                                faceParameters.maxBlur,
                         )
-                totalScore += weights.blur * blurScore
+                totalScore += faceWeights.blur * blurScore
 
                 val brightnessScore =
                         BrightnessAnalysis.calculateScore(
                                 croppedBitmap,
-                                parameters.minBrightness,
-                                parameters.optimalBrightnessLow,
-                                parameters.optimalBrightnessHigh,
-                                parameters.maxBrightness,
-                                parameters.brightnessSteepness,
+                                faceParameters.minBrightness,
+                                faceParameters.optimalBrightnessLow,
+                                faceParameters.optimalBrightnessHigh,
+                                faceParameters.maxBrightness,
+                                faceParameters.brightnessSteepness,
                         )
-                totalScore += weights.brightness * brightnessScore
+                totalScore += faceWeights.brightness * brightnessScore
 
                 val contrastScore =
                         ContrastAnalysis.calculateScore(
                                 croppedBitmap,
-                                parameters.minContrast,
-                                parameters.maxContrast,
+                                faceParameters.minContrast,
+                                faceParameters.maxContrast,
                         )
-                totalScore += weights.contrast * contrastScore
+                totalScore += faceWeights.contrast * contrastScore
 
                 if (leftEyeOpenness != null && rightEyeOpenness != null) {
                     val eyeScore = (leftEyeOpenness + rightEyeOpenness) / 2.0
-                    totalScore += weights.eyeOpenness * eyeScore
+                    totalScore += faceWeights.eyeOpenness * eyeScore
                 }
 
                 // Clean up
