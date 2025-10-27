@@ -64,7 +64,7 @@ class FaceDetectionProcessorTest {
         val faces = resultDeferred.await()
         assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertThat(face.quality).isLessThan(0.6f)
+        assertThat(face.quality).isLessThan(0.5f)
     }
 
     @Test
@@ -114,7 +114,7 @@ class FaceDetectionProcessorTest {
 
         assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertThat(face.quality).isLessThan(0.6f)
+        assertThat(face.quality).isLessThan(0.5f)
     }
 
     @Test
