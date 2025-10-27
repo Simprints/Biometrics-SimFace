@@ -1,13 +1,13 @@
 package com.simprints.simq.analysis
 
 import android.graphics.Bitmap
+import com.simprints.simq.utils.ImageAnalyzer
+import com.simprints.simq.utils.OpenCVImageAnalyzer
 import com.simprints.simq.utils.ScoringFunctions
-import org.opencv.android.Utils
-import org.opencv.core.Core
-import org.opencv.core.Mat
-import org.opencv.imgproc.Imgproc
 
 internal object BrightnessAnalysis {
+    private var imageAnalyzer: ImageAnalyzer = OpenCVImageAnalyzer()
+
     /**
      * Calculates brightness score using plateau function.
      *
@@ -28,7 +28,7 @@ internal object BrightnessAnalysis {
             steepness: Double,
     ): Double =
             try {
-                val brightness = analyzeBrightness(bitmap)
+                val brightness = imageAnalyzer.calculateBrightness(bitmap)
                 ScoringFunctions.plateauScore(
                         brightness,
                         centerLow,
@@ -40,21 +40,4 @@ internal object BrightnessAnalysis {
             } catch (e: Exception) {
                 1.0
             }
-
-    /**
-     * Analyzes brightness of bitmap using OpenCV.
-     *
-     * @param bitmap The face image to analyze
-     * @return Mean brightness value (0-255)
-     */
-    private fun analyzeBrightness(bitmap: Bitmap): Double {
-        val mat = Mat()
-        val gray = Mat()
-        Utils.bitmapToMat(bitmap, mat)
-        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY)
-        val brightness = Core.mean(gray).`val`[0]
-        mat.release()
-        gray.release()
-        return brightness
-    }
 }
