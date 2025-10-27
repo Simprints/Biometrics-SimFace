@@ -5,11 +5,11 @@ import com.simprints.simq.QualityParameters
 import com.simprints.simq.QualityWeights
 import java.io.File
 
-data class  SimFaceConfig(
+data class SimFaceConfig(
         val applicationContext: Context,
         /**
          * Custom model file to use instead of the bundled one. If not set, the bundled model will
-         * be used. The custom model's inputs and outputs vectors must much the default SimFace
+         * be used. The custom model's inputs and outputs vectors must match the default SimFace
          * model.
          */
         val customModel: CustomModel? = null,
@@ -24,8 +24,8 @@ data class  SimFaceConfig(
          */
         val qualityParameters: QualityParameters? = null,
 ) {
-    data class CustomModel(
-            val file: File,
-            val templateVersion: String,
-    )
+        data class CustomModel(
+                val file: File,
+                val templateVersion: String,
+        )
 }
