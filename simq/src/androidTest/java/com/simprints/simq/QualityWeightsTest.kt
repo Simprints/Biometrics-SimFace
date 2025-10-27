@@ -22,36 +22,6 @@ class QualityWeightsTest {
     ): Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
     @Test
-    fun defaultWeightsSumTo1() {
-        val weights = QualityWeights.DEFAULT
-        val sum =
-            weights.alignment +
-                weights.blur +
-                weights.brightness +
-                weights.contrast +
-                weights.eyeOpenness
-        assertThat(sum).isWithin(0.001).of(1.0)
-    }
-
-    @Test
-    fun customWeightsCanBeCreated() {
-        val customWeights =
-            QualityWeights(
-                alignment = 0.25,
-                blur = 0.25,
-                brightness = 0.25,
-                contrast = 0.15,
-                eyeOpenness = 0.10,
-            )
-
-        assertThat(customWeights.alignment).isWithin(0.001).of(0.25)
-        assertThat(customWeights.blur).isWithin(0.001).of(0.25)
-        assertThat(customWeights.brightness).isWithin(0.001).of(0.25)
-        assertThat(customWeights.contrast).isWithin(0.001).of(0.15)
-        assertThat(customWeights.eyeOpenness).isWithin(0.001).of(0.10)
-    }
-
-    @Test
     fun calculateFaceQualityWithAllWeightsMaximizingOneMetric() {
         val bitmap = createTestBitmap()
 

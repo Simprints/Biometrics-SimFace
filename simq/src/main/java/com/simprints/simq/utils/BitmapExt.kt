@@ -12,10 +12,10 @@ import kotlin.math.sqrt
  * @param verticalDisplacement Vertical displacement factor (-1.0 to 1.0)
  * @return Cropped bitmap
  */
-fun Bitmap.centerCrop(
-    centerCrop: Float,
-    horizontalDisplacement: Float = 0f,
-    verticalDisplacement: Float = 0f,
+internal fun Bitmap.centerCrop(
+        centerCrop: Float,
+        horizontalDisplacement: Float = 0f,
+        verticalDisplacement: Float = 0f,
 ): Bitmap {
     val hAbsDisplacement = (width * horizontalDisplacement).toInt()
     val vAbsDisplacement = (height * verticalDisplacement).toInt()
@@ -34,7 +34,7 @@ fun Bitmap.centerCrop(
  * @param targetArea Target area in pixels (default: 65536 = 256x256)
  * @return Resized bitmap
  */
-fun Bitmap.resizeToArea(targetArea: Double = 65536.0): Bitmap {
+internal fun Bitmap.resizeToArea(targetArea: Double = 65536.0): Bitmap {
     val aspectRatio = width.toFloat() / height.toFloat()
     val newHeight = sqrt(targetArea / aspectRatio)
     val newWidth = aspectRatio * newHeight

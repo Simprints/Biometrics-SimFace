@@ -2,15 +2,15 @@ package com.simprints.simq.analysis
 
 import android.graphics.Bitmap
 import com.simprints.simq.utils.ScoringFunctions
+import kotlin.math.pow
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDouble
 import org.opencv.imgproc.Imgproc
-import kotlin.math.pow
 
-object BlurAnalysis {
+internal object BlurAnalysis {
     /**
      * Calculates blur score using Laplacian variance.
      *
@@ -20,15 +20,16 @@ object BlurAnalysis {
      * @return Blur score between 0.0 and 1.0
      */
     fun calculateScore(
-        bitmap: Bitmap,
-        minBlur: Double,
-        maxBlur: Double,
-    ): Double = try {
-        val laplacianVariance = calculateLaplacianVariance(bitmap)
-        ScoringFunctions.rampScore(laplacianVariance, minBlur, maxBlur)
-    } catch (e: Exception) {
-        1.0 // Default to good score if OpenCV not available
-    }
+            bitmap: Bitmap,
+            minBlur: Double,
+            maxBlur: Double,
+    ): Double =
+            try {
+                val laplacianVariance = calculateLaplacianVariance(bitmap)
+                ScoringFunctions.rampScore(laplacianVariance, minBlur, maxBlur)
+            } catch (e: Exception) {
+                1.0 // Default to good score if OpenCV not available
+            }
 
     /**
      * Calculates Laplacian blur variance using OpenCV.
@@ -38,8 +39,8 @@ object BlurAnalysis {
      * @return Laplacian variance value
      */
     private fun calculateLaplacianVariance(
-        bitmap: Bitmap,
-        ksize: Int = 5,
+            bitmap: Bitmap,
+            ksize: Int = 5,
     ): Double {
         val mat = Mat()
         val gray = Mat()

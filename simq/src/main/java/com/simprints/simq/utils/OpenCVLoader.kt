@@ -4,10 +4,10 @@ import android.util.Log
 import org.opencv.android.OpenCVLoader as AndroidOpenCVLoader
 
 /**
- * Singleton object to handle OpenCV library loading.
- * Ensures the native library is loaded only once during the application lifecycle.
+ * Singleton object to handle OpenCV library loading. Ensures the native library is loaded only once
+ * during the application lifecycle.
  */
-object OpenCVLoader {
+internal object OpenCVLoader {
     private const val TAG = "OpenCV"
 
     fun init() {

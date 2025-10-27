@@ -31,97 +31,96 @@ class SimQ {
      * @return Quality score between 0.0 and 1.0, or 0.0 if calculation fails
      */
     fun calculateFaceQuality(
-        bitmap: Bitmap,
-        pitch: Double = 0.0,
-        yaw: Double = 0.0,
-        roll: Double = 0.0,
-        leftEyeOpenness: Double? = null,
-        rightEyeOpenness: Double? = null,
-        centerCrop: Float = 0.5f,
-        horizontalDisplacement: Float = 0.0f,
-        verticalDisplacement: Float = 0.0f,
-        weights: QualityWeights = QualityWeights.DEFAULT,
-        parameters: QualityParameters = QualityParameters.DEFAULT,
-    ): Float = try {
-        // Resize bitmap to target area (256x256 = 65536)
-        val resizedBitmap = bitmap.resizeToArea(65536.0)
+            bitmap: Bitmap,
+            pitch: Double = 0.0,
+            yaw: Double = 0.0,
+            roll: Double = 0.0,
+            leftEyeOpenness: Double? = null,
+            rightEyeOpenness: Double? = null,
+            centerCrop: Float = 0.5f,
+            horizontalDisplacement: Float = 0.0f,
+            verticalDisplacement: Float = 0.0f,
+            weights: QualityWeights = QualityWeights.DEFAULT,
+            parameters: QualityParameters = QualityParameters.DEFAULT,
+    ): Float =
+            try {
+                // Resize bitmap to target area (256x256 = 65536)
+                val resizedBitmap = bitmap.resizeToArea(65536.0)
 
-        // Crop the bitmap
-        val croppedBitmap =
-            resizedBitmap.centerCrop(
-                centerCrop,
-                horizontalDisplacement,
-                verticalDisplacement,
-            )
+                // Crop the bitmap
+                val croppedBitmap =
+                        resizedBitmap.centerCrop(
+                                centerCrop,
+                                horizontalDisplacement,
+                                verticalDisplacement,
+                        )
 
-        var totalScore = 0.0
-        val totalWeight =
-            weights.alignment +
-                weights.blur +
-                weights.brightness +
-                weights.contrast +
-                (
-                    if (leftEyeOpenness != null && rightEyeOpenness != null) {
-                        weights.eyeOpenness
-                    } else {
-                        0.0
-                    }
-                )
+                var totalScore = 0.0
+                val totalWeight =
+                        weights.alignment +
+                                weights.blur +
+                                weights.brightness +
+                                weights.contrast +
+                                (if (leftEyeOpenness != null && rightEyeOpenness != null) {
+                                    weights.eyeOpenness
+                                } else {
+                                    0.0
+                                })
 
-        val alignmentScore =
-            AlignmentAnalysis.calculateScore(
-                pitch,
-                yaw,
-                roll,
-                parameters.maxAlignmentAngle,
-                parameters.maxIndividualAngle,
-            )
-        totalScore += weights.alignment * alignmentScore
+                val alignmentScore =
+                        AlignmentAnalysis.calculateScore(
+                                pitch,
+                                yaw,
+                                roll,
+                                parameters.maxAlignmentAngle,
+                                parameters.maxIndividualAngle,
+                        )
+                totalScore += weights.alignment * alignmentScore
 
-        val blurScore =
-            BlurAnalysis.calculateScore(
-                croppedBitmap,
-                parameters.minBlur,
-                parameters.maxBlur,
-            )
-        totalScore += weights.blur * blurScore
+                val blurScore =
+                        BlurAnalysis.calculateScore(
+                                croppedBitmap,
+                                parameters.minBlur,
+                                parameters.maxBlur,
+                        )
+                totalScore += weights.blur * blurScore
 
-        val brightnessScore =
-            BrightnessAnalysis.calculateScore(
-                croppedBitmap,
-                parameters.minBrightness,
-                parameters.optimalBrightnessLow,
-                parameters.optimalBrightnessHigh,
-                parameters.maxBrightness,
-                parameters.brightnessSteepness,
-            )
-        totalScore += weights.brightness * brightnessScore
+                val brightnessScore =
+                        BrightnessAnalysis.calculateScore(
+                                croppedBitmap,
+                                parameters.minBrightness,
+                                parameters.optimalBrightnessLow,
+                                parameters.optimalBrightnessHigh,
+                                parameters.maxBrightness,
+                                parameters.brightnessSteepness,
+                        )
+                totalScore += weights.brightness * brightnessScore
 
-        val contrastScore =
-            ContrastAnalysis.calculateScore(
-                croppedBitmap,
-                parameters.minContrast,
-                parameters.maxContrast,
-            )
-        totalScore += weights.contrast * contrastScore
+                val contrastScore =
+                        ContrastAnalysis.calculateScore(
+                                croppedBitmap,
+                                parameters.minContrast,
+                                parameters.maxContrast,
+                        )
+                totalScore += weights.contrast * contrastScore
 
-        if (leftEyeOpenness != null && rightEyeOpenness != null) {
-            val eyeScore = (leftEyeOpenness + rightEyeOpenness) / 2.0
-            totalScore += weights.eyeOpenness * eyeScore
-        }
+                if (leftEyeOpenness != null && rightEyeOpenness != null) {
+                    val eyeScore = (leftEyeOpenness + rightEyeOpenness) / 2.0
+                    totalScore += weights.eyeOpenness * eyeScore
+                }
 
-        // Clean up
-        if (croppedBitmap != bitmap && croppedBitmap != resizedBitmap) {
-            croppedBitmap.recycle()
-        }
-        if (resizedBitmap != bitmap) {
-            resizedBitmap.recycle()
-        }
+                // Clean up
+                if (croppedBitmap != bitmap && croppedBitmap != resizedBitmap) {
+                    croppedBitmap.recycle()
+                }
+                if (resizedBitmap != bitmap) {
+                    resizedBitmap.recycle()
+                }
 
-        // Normalize and clamp to 0-1 range
-        val finalScore = if (totalWeight > 0) totalScore / totalWeight else 0.0
-        finalScore.coerceIn(0.0, 1.0).toFloat()
-    } catch (e: Exception) {
-        0.0f
-    }
+                // Normalize and clamp to 0-1 range
+                val finalScore = if (totalWeight > 0) totalScore / totalWeight else 0.0
+                finalScore.coerceIn(0.0, 1.0).toFloat()
+            } catch (e: Exception) {
+                0.0f
+            }
 }

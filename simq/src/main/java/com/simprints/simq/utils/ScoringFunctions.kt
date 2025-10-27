@@ -2,7 +2,7 @@ package com.simprints.simq.utils
 
 import kotlin.math.exp
 
-object ScoringFunctions {
+internal object ScoringFunctions {
     /**
      * Ramp scoring function: linear interpolation between min and max.
      *
@@ -12,14 +12,15 @@ object ScoringFunctions {
      * @return Score between 0.0 and 1.0
      */
     fun rampScore(
-        x: Double,
-        min: Double,
-        max: Double,
-    ): Double = when {
-        x < min -> 0.0
-        x > max -> 1.0
-        else -> (x - min) / (max - min)
-    }
+            x: Double,
+            min: Double,
+            max: Double,
+    ): Double =
+            when {
+                x < min -> 0.0
+                x > max -> 1.0
+                else -> (x - min) / (max - min)
+            }
 
     /**
      * Plateau scoring function: optimal range with smooth sigmoid falloff.
@@ -33,15 +34,16 @@ object ScoringFunctions {
      * @return Score between 0.0 and 1.0
      */
     fun plateauScore(
-        x: Double,
-        centerLow: Double,
-        centerHigh: Double,
-        edgeLow: Double,
-        edgeHigh: Double,
-        steepness: Double,
-    ): Double = when {
-        x in centerLow..centerHigh -> 1.0
-        x < centerLow -> 1.0 / (1.0 + exp(-steepness * (x - edgeLow)))
-        else -> 1.0 / (1.0 + exp(steepness * (x - edgeHigh)))
-    }.coerceIn(0.0, 1.0)
+            x: Double,
+            centerLow: Double,
+            centerHigh: Double,
+            edgeLow: Double,
+            edgeHigh: Double,
+            steepness: Double,
+    ): Double =
+            when {
+                x in centerLow..centerHigh -> 1.0
+                x < centerLow -> 1.0 / (1.0 + exp(-steepness * (x - edgeLow)))
+                else -> 1.0 / (1.0 + exp(steepness * (x - edgeHigh)))
+            }.coerceIn(0.0, 1.0)
 }

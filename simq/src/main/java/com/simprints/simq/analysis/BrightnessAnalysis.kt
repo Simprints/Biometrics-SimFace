@@ -7,7 +7,7 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
 
-object BrightnessAnalysis {
+internal object BrightnessAnalysis {
     /**
      * Calculates brightness score using plateau function.
      *
@@ -20,18 +20,26 @@ object BrightnessAnalysis {
      * @return Brightness score between 0.0 and 1.0
      */
     fun calculateScore(
-        bitmap: Bitmap,
-        edgeLow: Double,
-        centerLow: Double,
-        centerHigh: Double,
-        edgeHigh: Double,
-        steepness: Double,
-    ): Double = try {
-        val brightness = analyzeBrightness(bitmap)
-        ScoringFunctions.plateauScore(brightness, centerLow, centerHigh, edgeLow, edgeHigh, steepness)
-    } catch (e: Exception) {
-        1.0
-    }
+            bitmap: Bitmap,
+            edgeLow: Double,
+            centerLow: Double,
+            centerHigh: Double,
+            edgeHigh: Double,
+            steepness: Double,
+    ): Double =
+            try {
+                val brightness = analyzeBrightness(bitmap)
+                ScoringFunctions.plateauScore(
+                        brightness,
+                        centerLow,
+                        centerHigh,
+                        edgeLow,
+                        edgeHigh,
+                        steepness
+                )
+            } catch (e: Exception) {
+                1.0
+            }
 
     /**
      * Analyzes brightness of bitmap using OpenCV.

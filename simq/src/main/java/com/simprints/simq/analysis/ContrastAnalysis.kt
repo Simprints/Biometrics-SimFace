@@ -8,7 +8,7 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfDouble
 import org.opencv.imgproc.Imgproc
 
-object ContrastAnalysis {
+internal object ContrastAnalysis {
     /**
      * Calculates contrast score using standard deviation.
      *
@@ -18,15 +18,16 @@ object ContrastAnalysis {
      * @return Contrast score between 0.0 and 1.0
      */
     fun calculateScore(
-        bitmap: Bitmap,
-        minContrast: Double,
-        maxContrast: Double,
-    ): Double = try {
-        val contrast = analyzeContrast(bitmap)
-        ScoringFunctions.rampScore(contrast, minContrast, maxContrast)
-    } catch (e: Exception) {
-        1.0 // Default to good score if OpenCV not available
-    }
+            bitmap: Bitmap,
+            minContrast: Double,
+            maxContrast: Double,
+    ): Double =
+            try {
+                val contrast = analyzeContrast(bitmap)
+                ScoringFunctions.rampScore(contrast, minContrast, maxContrast)
+            } catch (e: Exception) {
+                1.0 // Default to good score if OpenCV not available
+            }
 
     /**
      * Analyzes contrast of bitmap using OpenCV (standard deviation).
