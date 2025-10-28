@@ -1,7 +1,6 @@
 package com.simprints.biometrics.simface
 
 import android.graphics.Bitmap
-import com.google.mlkit.vision.face.FaceDetection as MlKitFaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.simprints.biometrics.simface.data.FaceDetection
@@ -15,6 +14,7 @@ import com.simprints.biometrics.simface.matcher.MatchProcessor
 import com.simprints.simq.SimQ
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import com.google.mlkit.vision.face.FaceDetection as MlKitFaceDetection
 
 class SimFace {
     private val initLock = ReentrantLock()
@@ -28,63 +28,60 @@ class SimFace {
     private lateinit var faceDetectionProcessor: FaceDetectionProcessor
 
     /** Load the ML model into memory and prepare other resources for work. */
-    fun initialize(config: SimFaceConfig): Unit =
-            initLock.withLock {
-                try {
-                    // Initialize the model manager with the given config
-                    modelManager = MLModelManager(config)
+    fun initialize(config: SimFaceConfig): Unit = initLock.withLock {
+        try {
+            // Initialize the model manager with the given config
+            modelManager = MLModelManager(config)
 
-                    // Initialize SimQ quality processor with optional custom weights and parameters
-                    qualityProcessor =
-                            when {
-                                config.qualityWeights != null && config.qualityParameters != null ->
-                                        SimQ(config.qualityWeights, config.qualityParameters)
-                                config.qualityWeights != null ->
-                                        SimQ(faceWeights = config.qualityWeights)
-                                config.qualityParameters != null ->
-                                        SimQ(faceParameters = config.qualityParameters)
-                                else -> SimQ()
-                            }
-
-                    // Initialize processors
-                    embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)
-                    matchProcessor = CosineDistanceMatchProcessor()
-
-                    // Configure and load MLKit face detection model
-                    val realTimeOpts =
-                            FaceDetectorOptions.Builder()
-                                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
-                                    .setPerformanceMode(
-                                            FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE,
-                                    )
-                                    .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-                                    .setClassificationMode(
-                                            FaceDetectorOptions.CLASSIFICATION_MODE_ALL,
-                                    )
-                                    .setMinFaceSize(0.20f)
-                                    .build()
-                    faceDetector = MlKitFaceDetection.getClient(realTimeOpts)
-                    faceDetectionProcessor =
-                            MlKitFaceDetectionProcessor(faceDetector, qualityProcessor)
-                } catch (e: Exception) {
-                    throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
+            // Initialize SimQ quality processor with optional custom weights and parameters
+            qualityProcessor =
+                when {
+                    config.qualityWeights != null && config.qualityParameters != null ->
+                        SimQ(config.qualityWeights, config.qualityParameters)
+                    config.qualityWeights != null ->
+                        SimQ(faceWeights = config.qualityWeights)
+                    config.qualityParameters != null ->
+                        SimQ(faceParameters = config.qualityParameters)
+                    else -> SimQ()
                 }
-            }
+
+            // Initialize processors
+            embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)
+            matchProcessor = CosineDistanceMatchProcessor()
+
+            // Configure and load MLKit face detection model
+            val realTimeOpts =
+                FaceDetectorOptions
+                    .Builder()
+                    .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                    .setPerformanceMode(
+                        FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE,
+                    ).setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+                    .setClassificationMode(
+                        FaceDetectorOptions.CLASSIFICATION_MODE_ALL,
+                    ).setMinFaceSize(0.20f)
+                    .build()
+            faceDetector = MlKitFaceDetection.getClient(realTimeOpts)
+            faceDetectionProcessor =
+                MlKitFaceDetectionProcessor(faceDetector, qualityProcessor)
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to initialize SimFaceFacade: ${e.message}", e)
+        }
+    }
 
     /** Releases used resources and ML model. */
-    fun release() =
-            initLock.withLock {
-                try {
-                    if (this::modelManager.isInitialized) {
-                        modelManager.close()
-                    }
-                    if (this::faceDetector.isInitialized) {
-                        faceDetector.close()
-                    }
-                } catch (e: Exception) {
-                    println("Error releasing MLModelManager: ${e.message}")
-                }
+    fun release() = initLock.withLock {
+        try {
+            if (this::modelManager.isInitialized) {
+                modelManager.close()
             }
+            if (this::faceDetector.isInitialized) {
+                faceDetector.close()
+            }
+        } catch (e: Exception) {
+            println("Error releasing MLModelManager: ${e.message}")
+        }
+    }
 
     /** Returns the version of the templates generated by the underlying ML model. */
     fun getTemplateVersion(): String = modelManager.templateVersion
@@ -94,10 +91,10 @@ class SimFace {
      * metadata (quality, bounding box, landmarks, etc.) or error in a set of callbacks.
      */
     fun detectFace(
-            image: Bitmap,
-            onSuccess: (List<FaceDetection>) -> Unit,
-            onFailure: (Exception) -> Unit = {},
-            onCompleted: () -> Unit = {},
+        image: Bitmap,
+        onSuccess: (List<FaceDetection>) -> Unit,
+        onFailure: (Exception) -> Unit = {},
+        onCompleted: () -> Unit = {},
     ) {
         if (!this::faceDetectionProcessor.isInitialized) {
             throw IllegalStateException("SimFace.initialize() should be called first")
@@ -126,8 +123,8 @@ class SimFace {
 
     /** Compares the probe against the provided reference. */
     fun verificationScore(
-            probe: ByteArray,
-            matchReference: ByteArray,
+        probe: ByteArray,
+        matchReference: ByteArray,
     ): Double {
         if (!this::matchProcessor.isInitialized) {
             throw IllegalStateException("SimFace.initialize() should be called first")
@@ -140,8 +137,8 @@ class SimFace {
      * reference in a descending order.
      */
     fun identificationScore(
-            probe: ByteArray,
-            matchReferences: List<ByteArray>,
+        probe: ByteArray,
+        matchReferences: List<ByteArray>,
     ): List<Pair<ByteArray, Double>> {
         if (!this::matchProcessor.isInitialized) {
             throw IllegalStateException("SimFace.initialize() should be called first")

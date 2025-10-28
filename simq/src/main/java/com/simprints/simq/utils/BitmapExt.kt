@@ -13,9 +13,9 @@ import kotlin.math.sqrt
  * @return Cropped bitmap
  */
 internal fun Bitmap.centerCrop(
-        centerCrop: Float,
-        horizontalDisplacement: Float = 0f,
-        verticalDisplacement: Float = 0f,
+    centerCrop: Float,
+    horizontalDisplacement: Float = 0f,
+    verticalDisplacement: Float = 0f,
 ): Bitmap {
     val hAbsDisplacement = (width * horizontalDisplacement).toInt()
     val vAbsDisplacement = (height * verticalDisplacement).toInt()

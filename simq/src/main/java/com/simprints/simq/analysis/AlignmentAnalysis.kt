@@ -14,16 +14,16 @@ internal object AlignmentAnalysis {
      * @return Alignment score between 0.0 and 1.0
      */
     fun calculateScore(
-            pitch: Double,
-            yaw: Double,
-            roll: Double,
-            maxAngle: Double,
-            maxIndividualAngle: Double,
+        pitch: Double,
+        yaw: Double,
+        roll: Double,
+        maxAngle: Double,
+        maxIndividualAngle: Double,
     ): Double {
         // Reject if any angle is too extreme
         if (pitch.absoluteValue > maxIndividualAngle ||
-                        yaw.absoluteValue > maxIndividualAngle ||
-                        roll.absoluteValue > maxIndividualAngle
+            yaw.absoluteValue > maxIndividualAngle ||
+            roll.absoluteValue > maxIndividualAngle
         ) {
             return 0.0
         }

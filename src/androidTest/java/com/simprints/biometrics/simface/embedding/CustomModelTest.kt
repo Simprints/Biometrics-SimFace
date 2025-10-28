@@ -42,16 +42,16 @@ class CustomModelTest {
         val testModelFile = context.openTestModelFile()
 
         modelManager =
-                MLModelManager(
-                        SimFaceConfig(
-                                context,
-                                customModel =
-                                        SimFaceConfig.CustomModel(
-                                                file = testModelFile,
-                                                templateVersion = "TEST_1",
-                                        ),
+            MLModelManager(
+                SimFaceConfig(
+                    context,
+                    customModel =
+                        SimFaceConfig.CustomModel(
+                            file = testModelFile,
+                            templateVersion = "TEST_1",
                         ),
-                )
+                ),
+            )
         embeddingProcessor = TensorFlowEmbeddingProcessor(modelManager)
 
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
@@ -61,5 +61,5 @@ class CustomModelTest {
     }
 
     private fun getFaceEmbeddingFromBitmap(bitmap: Bitmap): FloatArray =
-            embeddingProcessor.getEmbedding(bitmap).let { Utils.byteArrayToFloatArray(it) }
+        embeddingProcessor.getEmbedding(bitmap).let { Utils.byteArrayToFloatArray(it) }
 }

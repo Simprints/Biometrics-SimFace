@@ -5,11 +5,11 @@ package com.simprints.simq
  * the final score.
  */
 data class QualityWeights(
-        val alignment: Double = 0.28,
-        val blur: Double = 0.3,
-        val brightness: Double = 0.3,
-        val contrast: Double = 0.1,
-        val eyeOpenness: Double = 0.02,
+    val alignment: Double = 0.28,
+    val blur: Double = 0.3,
+    val brightness: Double = 0.3,
+    val contrast: Double = 0.1,
+    val eyeOpenness: Double = 0.02,
 ) {
     companion object {
         val DEFAULT = QualityWeights()

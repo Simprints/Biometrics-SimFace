@@ -17,14 +17,13 @@ internal object BlurAnalysis {
      * @return Blur score between 0.0 and 1.0
      */
     fun calculateScore(
-            bitmap: Bitmap,
-            minBlur: Double,
-            maxBlur: Double,
-    ): Double =
-            try {
-                val laplacianVariance = imageAnalyzer.calculateLaplacianVariance(bitmap)
-                ScoringFunctions.rampScore(laplacianVariance, minBlur, maxBlur)
-            } catch (e: Exception) {
-                1.0 // Default to good score if OpenCV not available
-            }
+        bitmap: Bitmap,
+        minBlur: Double,
+        maxBlur: Double,
+    ): Double = try {
+        val laplacianVariance = imageAnalyzer.calculateLaplacianVariance(bitmap)
+        ScoringFunctions.rampScore(laplacianVariance, minBlur, maxBlur)
+    } catch (e: Exception) {
+        1.0 // Default to good score if OpenCV not available
+    }
 }

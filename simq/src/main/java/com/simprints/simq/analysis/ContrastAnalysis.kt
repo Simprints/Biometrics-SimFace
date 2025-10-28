@@ -17,14 +17,13 @@ internal object ContrastAnalysis {
      * @return Contrast score between 0.0 and 1.0
      */
     fun calculateScore(
-            bitmap: Bitmap,
-            minContrast: Double,
-            maxContrast: Double,
-    ): Double =
-            try {
-                val contrast = imageAnalyzer.calculateContrast(bitmap)
-                ScoringFunctions.rampScore(contrast, minContrast, maxContrast)
-            } catch (e: Exception) {
-                1.0 // Default to good score if OpenCV not available
-            }
+        bitmap: Bitmap,
+        minContrast: Double,
+        maxContrast: Double,
+    ): Double = try {
+        val contrast = imageAnalyzer.calculateContrast(bitmap)
+        ScoringFunctions.rampScore(contrast, minContrast, maxContrast)
+    } catch (e: Exception) {
+        1.0 // Default to good score if OpenCV not available
+    }
 }

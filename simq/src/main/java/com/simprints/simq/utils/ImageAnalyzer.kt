@@ -1,13 +1,13 @@
 package com.simprints.simq.utils
 
 import android.graphics.Bitmap
-import kotlin.math.pow
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.MatOfDouble
 import org.opencv.imgproc.Imgproc
+import kotlin.math.pow
 
 /**
  * Interface for image quality analysis operations. Provides high-level methods for analyzing image
@@ -30,7 +30,10 @@ interface ImageAnalyzer {
      * @param kernelSize Kernel size for the Laplacian operator (default: 5)
      * @return Laplacian variance value
      */
-    fun calculateLaplacianVariance(bitmap: Bitmap, kernelSize: Int = 5): Double
+    fun calculateLaplacianVariance(
+        bitmap: Bitmap,
+        kernelSize: Int = 5,
+    ): Double
 
     /**
      * Calculates the standard deviation to measure image contrast. Higher values indicate higher
@@ -43,7 +46,6 @@ interface ImageAnalyzer {
 }
 
 internal class OpenCVImageAnalyzer : ImageAnalyzer {
-
     override fun calculateBrightness(bitmap: Bitmap): Double {
         val mat = Mat()
         val gray = Mat()
@@ -57,7 +59,10 @@ internal class OpenCVImageAnalyzer : ImageAnalyzer {
         }
     }
 
-    override fun calculateLaplacianVariance(bitmap: Bitmap, kernelSize: Int): Double {
+    override fun calculateLaplacianVariance(
+        bitmap: Bitmap,
+        kernelSize: Int,
+    ): Double {
         val mat = Mat()
         val gray = Mat()
         val laplacian = Mat()
