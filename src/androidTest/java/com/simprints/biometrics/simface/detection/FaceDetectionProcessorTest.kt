@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.test.core.app.*
 import androidx.test.ext.junit.runners.*
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.loadBitmapFromTestResources
 import com.simprints.biometrics.simface.SimFace
 import com.simprints.biometrics.simface.SimFaceConfig
@@ -11,8 +12,6 @@ import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,9 +45,9 @@ class FaceDetectionProcessorTest {
         })
 
         val faces = resultDeferred.await()
-        assertTrue(faces.isNotEmpty())
+        assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertTrue(face.quality > 0.5)
+        assertThat(face.quality).isGreaterThan(0.5f)
     }
 
     @Test
@@ -63,9 +62,9 @@ class FaceDetectionProcessorTest {
         })
 
         val faces = resultDeferred.await()
-        assertTrue(faces.isNotEmpty())
+        assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertTrue(face.quality < 0.5)
+        assertThat(face.quality).isLessThan(0.5f)
     }
 
     @Test
@@ -80,7 +79,7 @@ class FaceDetectionProcessorTest {
         })
 
         val faces = resultDeferred.await()
-        assertTrue(faces.isEmpty())
+        assertThat(faces).isEmpty()
     }
 
     @Test
@@ -95,7 +94,7 @@ class FaceDetectionProcessorTest {
         })
 
         val faces = resultDeferred.await()
-        assertTrue(faces.size == 5)
+        assertThat(faces).hasSize(5)
     }
 
     @Test
@@ -103,9 +102,9 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_good_face")
         val faces = simFace.detectFaceBlocking(bitmap)
 
-        assertTrue(faces.isNotEmpty())
+        assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertTrue(face.quality > 0.5)
+        assertThat(face.quality).isGreaterThan(0.5f)
     }
 
     @Test
@@ -113,9 +112,9 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_bad_face")
         val faces = simFace.detectFaceBlocking(bitmap)
 
-        assertTrue(faces.isNotEmpty())
+        assertThat(faces).isNotEmpty()
         val face = faces[0]
-        assertTrue(face.quality < 0.5)
+        assertThat(face.quality).isLessThan(0.5f)
     }
 
     @Test
@@ -123,7 +122,7 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_flower")
         val faces = simFace.detectFaceBlocking(bitmap)
 
-        assertTrue(faces.isEmpty())
+        assertThat(faces).isEmpty()
     }
 
     @Test
@@ -131,6 +130,6 @@ class FaceDetectionProcessorTest {
         val bitmap: Bitmap = context.loadBitmapFromTestResources("royalty_free_multiple_faces")
         val faces = simFace.detectFaceBlocking(bitmap)
 
-        assertTrue(faces.size == 5)
+        assertThat(faces).hasSize(5)
     }
 }

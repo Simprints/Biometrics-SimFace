@@ -6,7 +6,10 @@ plugins {
 
 val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
-val projectVersion = "2025.3.1"
+val projectVersion = "2025.3.2"
+
+group = projectGroupId
+version = projectVersion
 
 android {
 
@@ -35,6 +38,7 @@ android {
 }
 
 dependencies {
+    api(project(":simq"))
 
     // Tensorflow versions that works with Edgeface
     api(libs.tensorflow.lite.support)
@@ -47,6 +51,7 @@ dependencies {
     // For face alignment
     api(libs.ejml.simple)
 
+    androidTestImplementation(libs.truth)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.kotlinx.coroutines.test)

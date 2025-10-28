@@ -1,9 +1,8 @@
 package com.simprints.biometrics.simface.matcher
 
 import androidx.test.ext.junit.runners.*
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.simface.Utils.floatArrayToByteArray
-import org.junit.Assert
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,7 +23,7 @@ class VerificationTest {
 
         val distance = matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(1.0, distance, 0.0001)
+        assertThat(distance).isWithin(0.0001).of(1.0)
     }
 
     @Test
@@ -34,7 +33,7 @@ class VerificationTest {
 
         val distance = matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(0.5, distance, 0.0001)
+        assertThat(distance).isWithin(0.0001).of(0.5)
     }
 
     @Test
@@ -44,7 +43,7 @@ class VerificationTest {
 
         val distance = matchProcessor.verificationScore(array1, array2)
 
-        assertEquals(0.0, distance, 0.0001)
+        assertThat(distance).isWithin(0.0001).of(0.0)
     }
 
     @Test
@@ -54,6 +53,7 @@ class VerificationTest {
 
         val distance = matchProcessor.verificationScore(array1, array2)
 
-        Assert.assertTrue(distance > 0.0 && distance < 1.0)
+        assertThat(distance).isGreaterThan(0.0)
+        assertThat(distance).isLessThan(1.0)
     }
 }

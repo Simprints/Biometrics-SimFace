@@ -1,8 +1,8 @@
 package com.simprints.biometrics.simface.matcher
 
 import androidx.test.ext.junit.runners.*
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.simface.Utils.floatArrayToByteArray
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,15 +30,15 @@ class IdentificationTest {
         val sortedDistances = sortedScores.map { it.second }
 
         // Closest match (identical vector) should have a score of 1
-        assertEquals(1.0, sortedDistances[0], 0.0001)
+        assertThat(sortedDistances[0]).isWithin(0.0001).of(1.0)
 
         // 45-degree vector (second closest) should have a score of around 0.85355
-        assertEquals(0.85355, sortedDistances[1], 0.0001)
+        assertThat(sortedDistances[1]).isWithin(0.0001).of(0.85355)
 
         // Orthogonal vector (further away) should have a score of 0.5
-        assertEquals(0.5, sortedDistances[2], 0.0001)
+        assertThat(sortedDistances[2]).isWithin(0.0001).of(0.5)
 
         // Opposite vector (furthest away) should have a score of 0.0
-        assertEquals(0.0, sortedDistances[3], 0.0001)
+        assertThat(sortedDistances[3]).isWithin(0.0001).of(0.0)
     }
 }

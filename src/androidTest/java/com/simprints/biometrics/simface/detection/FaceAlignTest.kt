@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import androidx.test.core.app.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.simprints.biometrics.loadBitmapFromTestResources
 import com.simprints.biometrics.simface.Constants
 import com.simprints.biometrics.simface.SimFace
@@ -13,7 +14,6 @@ import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,8 +42,8 @@ class FaceAlignTest {
 
         val croppedBitmap = cropAlignFace(bitmap, boundingBox)
 
-        assertTrue(boundingBox.width() == croppedBitmap.width)
-        assertTrue(boundingBox.height() == croppedBitmap.height)
+        assertThat(croppedBitmap.width).isEqualTo(boundingBox.width())
+        assertThat(croppedBitmap.height).isEqualTo(boundingBox.height())
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -71,19 +71,15 @@ class FaceAlignTest {
         })
 
         val faces = resultDeferred.await()
-        assertTrue(faces.isNotEmpty())
+        assertThat(faces).isNotEmpty()
         val face = faces[0]
 
         val warpedAlignedImage =
             face.landmarks?.let { warpAlignFace(bitmap, it) }
 
-        assertTrue(warpedAlignedImage != null)
+        assertThat(warpedAlignedImage).isNotNull()
 
-        if (warpedAlignedImage != null) {
-            assertTrue(warpedAlignedImage.width == Constants.IMAGE_SIZE)
-        }
-        if (warpedAlignedImage != null) {
-            assertTrue(warpedAlignedImage.height == Constants.IMAGE_SIZE)
-        }
+        assertThat(warpedAlignedImage!!.width).isEqualTo(Constants.IMAGE_SIZE)
+        assertThat(warpedAlignedImage.height).isEqualTo(Constants.IMAGE_SIZE)
     }
 }
