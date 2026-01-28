@@ -34,7 +34,7 @@ maven {
 2. Import the dependencies in `build.gradle.kts`:
 
 ```kotlin
-implementation("com.simprints.biometrics:simface:2025.4.0")
+implementation("com.simprints.biometrics:simface:2026.1.0")
 ```
 
 ## Implement the functionality.
