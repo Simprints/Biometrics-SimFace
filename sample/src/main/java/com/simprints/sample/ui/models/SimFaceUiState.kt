@@ -12,6 +12,7 @@ data class SimFaceUiState(
     val comparisonResult: String? = null,
     val isProcessing: Boolean = false,
     val isComparing: Boolean = false,
+    val selectedTab: DemoTab = DemoTab.CAMERA,
     val backStack: List<SimFaceDestination> = listOf(SimFaceDestination.Main),
     val cameraTarget: CameraTarget = CameraTarget.FACE_1,
 )

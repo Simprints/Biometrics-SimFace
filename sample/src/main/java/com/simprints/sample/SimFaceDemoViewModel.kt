@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.sample.data.FaceRepository
 import com.simprints.sample.ui.models.CameraTarget
+import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.FaceResult
 import com.simprints.sample.ui.models.SimFaceUiEffect
 import com.simprints.sample.ui.models.SimFaceUiState
@@ -44,6 +45,10 @@ class SimFaceDemoViewModel(
                 it.copy(backStack = it.backStack.dropLast(1))
             }
         }
+    }
+
+    fun selectTab(tab: DemoTab) {
+        _uiState.update { it.copy(selectedTab = tab) }
     }
 
     fun processCapturedBitmap(bitmap: Bitmap) {

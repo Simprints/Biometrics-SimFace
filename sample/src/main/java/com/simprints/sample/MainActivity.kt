@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simprints.sample.ui.models.CameraTarget
+import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.SimFaceUiEffect
 import com.simprints.sample.ui.screens.SimFaceDemoScreen
 import com.simprints.sample.ui.theme.SimFaceTesterTheme
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
                         uiState = uiState,
                         snackbarHostState = snackbarHostState,
                         onDetectFacesForPreview = simFaceDemoViewModel::detectFacesForPreview,
+                        onSelectTab = simFaceDemoViewModel::selectTab,
                         onCaptureFace1 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_1) },
                         onCaptureFace2 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_2) },
                         onDismissCamera = simFaceDemoViewModel::dismissCamera,

@@ -1,49 +1,26 @@
 package com.simprints.sample.ui.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.sample.SimFaceDestination
-import com.simprints.sample.ui.composables.CameraCaptureSection
-import com.simprints.sample.ui.composables.ComparisonResultCard
-import com.simprints.sample.ui.composables.DisplayFaceResult
-import com.simprints.sample.ui.composables.TestImagesSection
+import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.SimFaceUiState
-import kotlinx.coroutines.launch
 
 @Composable
 fun SimFaceDemoScreen(
-    modifier: Modifier = Modifier.Companion,
+    modifier: Modifier = Modifier,
     uiState: SimFaceUiState,
     snackbarHostState: SnackbarHostState,
     onDetectFacesForPreview: suspend (Bitmap) -> List<FaceDetection>,
+    onSelectTab: (DemoTab) -> Unit,
     onCaptureFace1: () -> Unit,
     onCaptureFace2: () -> Unit,
     onDismissCamera: () -> Unit,
@@ -56,37 +33,6 @@ fun SimFaceDemoScreen(
     onCompareObamaToObama: () -> Unit,
     onCompareObamaToBush: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val snackbarScope = rememberCoroutineScope()
-    var hasCameraPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED,
-        )
-    }
-
-    val permissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
-            hasCameraPermission = isGranted
-            if (!isGranted) {
-                // Keep all transient messages in the same snackbar host channel.
-                snackbarScope.launch {
-                    snackbarHostState.showSnackbar("Camera permission is required to capture images")
-                }
-            }
-        }
-
-    fun checkAndRequestCameraPermission(onPermissionGranted: () -> Unit) {
-        when {
-            hasCameraPermission -> {
-                onPermissionGranted()
-            }
-            else -> {
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
-    }
-
     val isCameraRoute = uiState.backStack.lastOrNull() == SimFaceDestination.Camera
     BackHandler(enabled = isCameraRoute) { onDismissCamera() }
 
@@ -100,84 +46,46 @@ fun SimFaceDemoScreen(
         return
     }
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(text = "SimFace Test App", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    Column(modifier = modifier) {
+        when (uiState.selectedTab) {
+            DemoTab.CAMERA -> {
+                SimFaceCameraDemoScreen(
+                    modifier = Modifier.weight(1f),
+                    uiState = uiState,
+                    snackbarHostState = snackbarHostState,
+                    onCaptureFace1 = onCaptureFace1,
+                    onCaptureFace2 = onCaptureFace2,
+                    onCompareCaptured = onCompareCaptured,
+                )
+            }
 
-        CameraCaptureSection(
-            isBusy = uiState.isProcessing || uiState.isComparing,
-            capturedImage1 = uiState.capturedImage1,
-            capturedImage2 = uiState.capturedImage2,
-            onCaptureFace1 = {
-                checkAndRequestCameraPermission { onCaptureFace1() }
-            },
-            onCaptureFace2 = {
-                checkAndRequestCameraPermission { onCaptureFace2() }
-            },
-            onCompareCaptured = onCompareCaptured,
-        )
+            DemoTab.TEST_IMAGES -> {
+                SimFaceTestImageDemoScreen(
+                    modifier = Modifier.weight(1f),
+                    uiState = uiState,
+                    onLoadObama1 = onLoadObama1,
+                    onLoadObama2 = onLoadObama2,
+                    onLoadBush = onLoadBush,
+                    onLoadLowQuality = onLoadLowQuality,
+                    onCompareObamaToObama = onCompareObamaToObama,
+                    onCompareObamaToBush = onCompareObamaToBush,
+                )
+            }
+        }
 
-        TestImagesSection(
-            isBusy = uiState.isProcessing || uiState.isComparing,
-            result1 = uiState.result1,
-            result2 = uiState.result2,
-            result3 = uiState.result3,
-            onLoadObama1 = onLoadObama1,
-            onLoadObama2 = onLoadObama2,
-            onLoadBush = onLoadBush,
-            onLoadLowQuality = onLoadLowQuality,
-            onCompareObamaToObama = onCompareObamaToObama,
-            onCompareObamaToBush = onCompareObamaToBush,
-        )
-
-        if (uiState.isProcessing || uiState.isComparing) {
-            CircularProgressIndicator()
-            Text(
-                text = if (uiState.isProcessing) "Processing image..." else "Comparing faces...",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        NavigationBar {
+            NavigationBarItem(
+                selected = uiState.selectedTab == DemoTab.CAMERA,
+                onClick = { onSelectTab(DemoTab.CAMERA) },
+                label = { Text("Camera") },
+                icon = { Text("1") },
             )
-        }
-
-        ComparisonResultCard(comparisonResult = uiState.comparisonResult)
-
-        uiState.capturedImage1?.let { res ->
-            DisplayFaceResult(res, "Captured Face 1", MaterialTheme.colorScheme.tertiary)
-        }
-
-        uiState.capturedImage2?.let { res ->
-            DisplayFaceResult(res, "Captured Face 2", MaterialTheme.colorScheme.tertiary)
-        }
-
-        uiState.result1?.let { res ->
-            DisplayFaceResult(
-                res,
-                "Obama 1",
-                MaterialTheme.colorScheme.primary,
+            NavigationBarItem(
+                selected = uiState.selectedTab == DemoTab.TEST_IMAGES,
+                onClick = { onSelectTab(DemoTab.TEST_IMAGES) },
+                label = { Text("Test Images") },
+                icon = { Text("2") },
             )
-        }
-
-        uiState.result2?.let { res ->
-            DisplayFaceResult(res, "Obama 2", MaterialTheme.colorScheme.secondary)
-        }
-
-        uiState.result3?.let { res ->
-            DisplayFaceResult(
-                res,
-                "Bush 1",
-                MaterialTheme.colorScheme.tertiary,
-            )
-        }
-
-        uiState.result4?.let { res ->
-            DisplayFaceResult(res, "Low Quality", MaterialTheme.colorScheme.tertiary)
         }
     }
 }
