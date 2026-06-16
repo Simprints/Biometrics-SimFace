@@ -10,16 +10,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.simprints.biometrics.simface.data.FaceDetection
-import com.simprints.sample.SimFaceDestination
 import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.camera.SimFaceCameraActions
+import com.simprints.sample.ui.models.camera.SimFaceCameraUiState
 import com.simprints.sample.ui.models.images.SimFaceTestImageActions
-import com.simprints.sample.ui.models.SimFaceUiState
+import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 
 @Composable
 fun SimFaceDemoScreen(
     modifier: Modifier = Modifier,
-    uiState: SimFaceUiState,
+    selectedTab: DemoTab,
+    isCameraRoute: Boolean,
+    cameraUiState: SimFaceCameraUiState,
+    testImageUiState: SimFaceTestImageUiState,
     snackbarHostState: SnackbarHostState,
     onDetectFacesForPreview: suspend (Bitmap) -> List<FaceDetection>,
     onSelectTab: (DemoTab) -> Unit,
@@ -28,13 +31,12 @@ fun SimFaceDemoScreen(
     cameraActions: SimFaceCameraActions,
     testImageActions: SimFaceTestImageActions,
 ) {
-    val isCameraRoute = uiState.backStack.lastOrNull() == SimFaceDestination.Camera
     BackHandler(enabled = isCameraRoute) { onDismissCamera() }
 
     if (isCameraRoute) {
         CameraPreviewScreen(
             onDetectFaces = onDetectFacesForPreview,
-            isProcessing = uiState.cameraState.isProcessing,
+            isProcessing = cameraUiState.isProcessing,
             onImageCaptured = onImageCaptured,
             onDismiss = onDismissCamera,
         )
@@ -42,11 +44,11 @@ fun SimFaceDemoScreen(
     }
 
     Column(modifier = modifier) {
-        when (uiState.selectedTab) {
+        when (selectedTab) {
             DemoTab.CAMERA -> {
                 SimFaceCameraDemoScreen(
                     modifier = Modifier.weight(1f),
-                    uiState = uiState.cameraState,
+                    uiState = cameraUiState,
                     actions = cameraActions,
                     snackbarHostState = snackbarHostState,
                 )
@@ -55,7 +57,7 @@ fun SimFaceDemoScreen(
             DemoTab.TEST_IMAGES -> {
                 SimFaceTestImageDemoScreen(
                     modifier = Modifier.weight(1f),
-                    uiState = uiState.testImageState,
+                    uiState = testImageUiState,
                     actions = testImageActions,
                 )
             }
@@ -63,13 +65,13 @@ fun SimFaceDemoScreen(
 
         NavigationBar {
             NavigationBarItem(
-                selected = uiState.selectedTab == DemoTab.CAMERA,
+                selected = selectedTab == DemoTab.CAMERA,
                 onClick = { onSelectTab(DemoTab.CAMERA) },
                 label = { Text("Camera") },
                 icon = { Text("1") },
             )
             NavigationBarItem(
-                selected = uiState.selectedTab == DemoTab.TEST_IMAGES,
+                selected = selectedTab == DemoTab.TEST_IMAGES,
                 onClick = { onSelectTab(DemoTab.TEST_IMAGES) },
                 label = { Text("Test Images") },
                 icon = { Text("2") },

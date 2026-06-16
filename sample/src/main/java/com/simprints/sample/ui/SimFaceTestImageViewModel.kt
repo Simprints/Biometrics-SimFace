@@ -1,13 +1,11 @@
-package com.simprints.sample
+package com.simprints.sample.ui
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simprints.biometrics.simface.data.FaceDetection
-import com.simprints.sample.ui.models.DemoTab
+import com.simprints.sample.R
 import com.simprints.sample.ui.models.FaceResult
-import com.simprints.sample.ui.models.SimFaceUiState
-import com.simprints.sample.ui.models.camera.CameraTarget
+import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 import com.simprints.sample.wrappers.SampleImageLoader
 import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,167 +20,50 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class SimFaceDemoViewModel(
+class SimFaceTestImageViewModel(
     private val repository: SimFaceWrapper,
     private val imageLoader: SampleImageLoader,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(SimFaceUiState())
-    val uiState: StateFlow<SimFaceUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(SimFaceTestImageUiState())
+    val uiState: StateFlow<SimFaceTestImageUiState> = _uiState.asStateFlow()
 
     private val _showSnackBar = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val showSnackBarEffect: SharedFlow<String> = _showSnackBar
 
-    fun openCamera(target: CameraTarget) {
-        _uiState.update {
-            it.copy(
-                cameraState = it.cameraState.copy(cameraTarget = target),
-                backStack = it.backStack + SimFaceDestination.Camera,
-            )
-        }
-    }
+    fun loadTestImage1() = loadTestImage(TestImageDemoSlot.OBAMA_1, R.drawable.obama1)
 
-    fun dismissCamera() {
-        _uiState.update {
-            if (it.backStack.size <= 1) {
-                it
-            } else {
-                it.copy(backStack = it.backStack.dropLast(1))
-            }
-        }
-    }
+    fun loadTestImage2() = loadTestImage(TestImageDemoSlot.OBAMA_2, R.drawable.obama2)
 
-    fun selectTab(tab: DemoTab) {
-        _uiState.update { it.copy(selectedTab = tab) }
-    }
+    fun loadTestImage3() = loadTestImage(TestImageDemoSlot.BUSH, R.drawable.bush)
 
-    fun processCapturedBitmap(bitmap: Bitmap) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(cameraState = it.cameraState.copy(isProcessing = true)) }
-            val result = processImageFromBitmap(bitmap)
-            _uiState.update {
-                when (it.cameraState.cameraTarget) {
-                    CameraTarget.FACE_1 ->
-                        it.copy(
-                            cameraState =
-                                it.cameraState.copy(
-                                    capturedImage1 = result,
-                                    isProcessing = false,
-                                ),
-                        )
-                    CameraTarget.FACE_2 ->
-                        it.copy(
-                            cameraState =
-                                it.cameraState.copy(
-                                    capturedImage2 = result,
-                                    isProcessing = false,
-                                ),
-                        )
-                }
-            }
-            dismissCamera()
-            if (!result.success) {
-                _showSnackBar.tryEmit("Capture error: ${result.message}")
-            }
-        }
-    }
-
-    fun loadTestImage1() = loadTestImage(TestImageSlot.OBAMA_1, R.drawable.obama1)
-
-    fun loadTestImage2() = loadTestImage(TestImageSlot.OBAMA_2, R.drawable.obama2)
-
-    fun loadTestImage3() = loadTestImage(TestImageSlot.BUSH, R.drawable.bush)
-
-    fun loadTestImage4() = loadTestImage(TestImageSlot.LOW_QUALITY, R.drawable.low_quality)
-
-    fun compareCapturedFaces() {
-        compareCameraFaces(uiState.value.cameraState.capturedImage1, uiState.value.cameraState.capturedImage2)
-    }
+    fun loadTestImage4() = loadTestImage(TestImageDemoSlot.LOW_QUALITY, R.drawable.low_quality)
 
     fun compareObamaWithObama() {
-        compareTestImages(uiState.value.testImageState.result1, uiState.value.testImageState.result2)
+        compareTestImages(uiState.value.result1, uiState.value.result2)
     }
 
     fun compareObamaWithBush() {
-        compareTestImages(uiState.value.testImageState.result1, uiState.value.testImageState.result3)
+        compareTestImages(uiState.value.result1, uiState.value.result3)
     }
 
-    suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = repository.detectFaces(bitmap)
-
     private fun loadTestImage(
-        slot: TestImageSlot,
+        slot: TestImageDemoSlot,
         imageRes: Int,
     ) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    testImageState =
-                        it.testImageState.copy(
-                            isProcessing = true,
-                            comparisonResult = null,
-                        ),
-                )
-            }
+            _uiState.update { it.copy(isProcessing = true, comparisonResult = null) }
             val result = processImage(imageRes)
             _uiState.update {
                 when (slot) {
-                    TestImageSlot.OBAMA_1 ->
-                        it.copy(
-                            testImageState =
-                                it.testImageState.copy(
-                                    result1 = result,
-                                    isProcessing = false,
-                                ),
-                        )
-                    TestImageSlot.OBAMA_2 ->
-                        it.copy(
-                            testImageState =
-                                it.testImageState.copy(
-                                    result2 = result,
-                                    isProcessing = false,
-                                ),
-                        )
-                    TestImageSlot.BUSH ->
-                        it.copy(
-                            testImageState =
-                                it.testImageState.copy(
-                                    result3 = result,
-                                    isProcessing = false,
-                                ),
-                        )
-                    TestImageSlot.LOW_QUALITY ->
-                        it.copy(
-                            testImageState =
-                                it.testImageState.copy(
-                                    result4 = result,
-                                    isProcessing = false,
-                                ),
-                        )
+                    TestImageDemoSlot.OBAMA_1 -> it.copy(result1 = result, isProcessing = false)
+                    TestImageDemoSlot.OBAMA_2 -> it.copy(result2 = result, isProcessing = false)
+                    TestImageDemoSlot.BUSH -> it.copy(result3 = result, isProcessing = false)
+                    TestImageDemoSlot.LOW_QUALITY -> it.copy(result4 = result, isProcessing = false)
                 }
             }
             if (!result.success) {
                 _showSnackBar.tryEmit("Image error: ${result.message}")
-            }
-        }
-    }
-
-    private fun compareCameraFaces(
-        result1: FaceResult?,
-        result2: FaceResult?,
-    ) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(cameraState = it.cameraState.copy(isComparing = true)) }
-            val comparisonResult = compareImages(result1, result2)
-            _uiState.update {
-                it.copy(
-                    cameraState = it.cameraState.copy(
-                        comparisonResult = comparisonResult,
-                        isComparing = false,
-                    ),
-                )
-            }
-            if (comparisonResult.startsWith("⚠") || comparisonResult.startsWith("❌")) {
-                _showSnackBar.tryEmit(comparisonResult)
             }
         }
     }
@@ -192,16 +73,9 @@ class SimFaceDemoViewModel(
         result2: FaceResult?,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(testImageState = it.testImageState.copy(isComparing = true)) }
+            _uiState.update { it.copy(isComparing = true) }
             val comparisonResult = compareImages(result1, result2)
-            _uiState.update {
-                it.copy(
-                    testImageState = it.testImageState.copy(
-                        comparisonResult = comparisonResult,
-                        isComparing = false,
-                    ),
-                )
-            }
+            _uiState.update { it.copy(comparisonResult = comparisonResult, isComparing = false) }
             if (comparisonResult.startsWith("⚠") || comparisonResult.startsWith("❌")) {
                 _showSnackBar.tryEmit(comparisonResult)
             }
@@ -325,7 +199,7 @@ class SimFaceDemoViewModel(
     }
 }
 
-private enum class TestImageSlot {
+private enum class TestImageDemoSlot {
     OBAMA_1,
     OBAMA_2,
     BUSH,
