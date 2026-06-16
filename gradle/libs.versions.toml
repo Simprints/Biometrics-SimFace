@@ -13,6 +13,7 @@ appcompat = "1.7.1"
 material = "1.13.0"
 opencv = "4.13.0"
 truth = "1.4.5"
+junit = "4.13.2"
 
 [libraries]
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -28,8 +29,10 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
 

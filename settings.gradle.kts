@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 rootProject.name = "Biometrics-SimFace"
 include(":Biometrics-SimFace")
 include(":simq")
+include(":simface")
