@@ -30,16 +30,15 @@ import androidx.core.content.ContextCompat
 import com.simprints.sample.ui.composables.CameraCaptureSection
 import com.simprints.sample.ui.composables.ComparisonResultCard
 import com.simprints.sample.ui.composables.DisplayFaceResult
-import com.simprints.sample.ui.models.SimFaceUiState
+import com.simprints.sample.ui.models.camera.SimFaceCameraActions
+import com.simprints.sample.ui.models.camera.SimFaceCameraUiState
 import kotlinx.coroutines.launch
 
 @Composable
 fun SimFaceCameraDemoScreen(
-    uiState: SimFaceUiState,
+    uiState: SimFaceCameraUiState,
+    actions: SimFaceCameraActions,
     snackbarHostState: SnackbarHostState,
-    onCaptureFace1: () -> Unit,
-    onCaptureFace2: () -> Unit,
-    onCompareCaptured: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -81,9 +80,9 @@ fun SimFaceCameraDemoScreen(
             isBusy = uiState.isProcessing || uiState.isComparing,
             capturedImage1 = uiState.capturedImage1,
             capturedImage2 = uiState.capturedImage2,
-            onCaptureFace1 = { checkAndRequestCameraPermission(onCaptureFace1) },
-            onCaptureFace2 = { checkAndRequestCameraPermission(onCaptureFace2) },
-            onCompareCaptured = onCompareCaptured,
+            onCaptureFace1 = { checkAndRequestCameraPermission(actions.onCaptureFace1) },
+            onCaptureFace2 = { checkAndRequestCameraPermission(actions.onCaptureFace2) },
+            onCompareCaptured = actions.onCompareCaptured,
         )
 
         if (uiState.isProcessing || uiState.isComparing) {

@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simprints.biometrics.simface.data.FaceDetection
-import com.simprints.sample.ui.models.CameraTarget
 import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.FaceResult
 import com.simprints.sample.ui.models.SimFaceUiState
+import com.simprints.sample.ui.models.camera.CameraTarget
 import com.simprints.sample.wrappers.SampleImageLoader
 import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,7 +34,12 @@ class SimFaceDemoViewModel(
     val showSnackBarEffect: SharedFlow<String> = _showSnackBar
 
     fun openCamera(target: CameraTarget) {
-        _uiState.update { it.copy(cameraTarget = target, backStack = it.backStack + SimFaceDestination.Camera) }
+        _uiState.update {
+            it.copy(
+                cameraState = it.cameraState.copy(cameraTarget = target),
+                backStack = it.backStack + SimFaceDestination.Camera,
+            )
+        }
     }
 
     fun dismissCamera() {
@@ -53,12 +58,26 @@ class SimFaceDemoViewModel(
 
     fun processCapturedBitmap(bitmap: Bitmap) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isProcessing = true) }
+            _uiState.update { it.copy(cameraState = it.cameraState.copy(isProcessing = true)) }
             val result = processImageFromBitmap(bitmap)
             _uiState.update {
-                when (it.cameraTarget) {
-                    CameraTarget.FACE_1 -> it.copy(capturedImage1 = result, isProcessing = false)
-                    CameraTarget.FACE_2 -> it.copy(capturedImage2 = result, isProcessing = false)
+                when (it.cameraState.cameraTarget) {
+                    CameraTarget.FACE_1 ->
+                        it.copy(
+                            cameraState =
+                                it.cameraState.copy(
+                                    capturedImage1 = result,
+                                    isProcessing = false,
+                                ),
+                        )
+                    CameraTarget.FACE_2 ->
+                        it.copy(
+                            cameraState =
+                                it.cameraState.copy(
+                                    capturedImage2 = result,
+                                    isProcessing = false,
+                                ),
+                        )
                 }
             }
             dismissCamera()
@@ -76,11 +95,17 @@ class SimFaceDemoViewModel(
 
     fun loadTestImage4() = loadTestImage(TestImageSlot.LOW_QUALITY, R.drawable.low_quality)
 
-    fun compareCapturedFaces() = compareFaces(uiState.value.capturedImage1, uiState.value.capturedImage2)
+    fun compareCapturedFaces() {
+        compareCameraFaces(uiState.value.cameraState.capturedImage1, uiState.value.cameraState.capturedImage2)
+    }
 
-    fun compareObamaWithObama() = compareFaces(uiState.value.result1, uiState.value.result2)
+    fun compareObamaWithObama() {
+        compareTestImages(uiState.value.testImageState.result1, uiState.value.testImageState.result2)
+    }
 
-    fun compareObamaWithBush() = compareFaces(uiState.value.result1, uiState.value.result3)
+    fun compareObamaWithBush() {
+        compareTestImages(uiState.value.testImageState.result1, uiState.value.testImageState.result3)
+    }
 
     suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = repository.detectFaces(bitmap)
 
@@ -89,14 +114,50 @@ class SimFaceDemoViewModel(
         imageRes: Int,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isProcessing = true, comparisonResult = null) }
+            _uiState.update {
+                it.copy(
+                    testImageState =
+                        it.testImageState.copy(
+                            isProcessing = true,
+                            comparisonResult = null,
+                        ),
+                )
+            }
             val result = processImage(imageRes)
             _uiState.update {
                 when (slot) {
-                    TestImageSlot.OBAMA_1 -> it.copy(result1 = result, isProcessing = false)
-                    TestImageSlot.OBAMA_2 -> it.copy(result2 = result, isProcessing = false)
-                    TestImageSlot.BUSH -> it.copy(result3 = result, isProcessing = false)
-                    TestImageSlot.LOW_QUALITY -> it.copy(result4 = result, isProcessing = false)
+                    TestImageSlot.OBAMA_1 ->
+                        it.copy(
+                            testImageState =
+                                it.testImageState.copy(
+                                    result1 = result,
+                                    isProcessing = false,
+                                ),
+                        )
+                    TestImageSlot.OBAMA_2 ->
+                        it.copy(
+                            testImageState =
+                                it.testImageState.copy(
+                                    result2 = result,
+                                    isProcessing = false,
+                                ),
+                        )
+                    TestImageSlot.BUSH ->
+                        it.copy(
+                            testImageState =
+                                it.testImageState.copy(
+                                    result3 = result,
+                                    isProcessing = false,
+                                ),
+                        )
+                    TestImageSlot.LOW_QUALITY ->
+                        it.copy(
+                            testImageState =
+                                it.testImageState.copy(
+                                    result4 = result,
+                                    isProcessing = false,
+                                ),
+                        )
                 }
             }
             if (!result.success) {
@@ -105,14 +166,42 @@ class SimFaceDemoViewModel(
         }
     }
 
-    private fun compareFaces(
+    private fun compareCameraFaces(
         result1: FaceResult?,
         result2: FaceResult?,
     ) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isComparing = true) }
+            _uiState.update { it.copy(cameraState = it.cameraState.copy(isComparing = true)) }
             val comparisonResult = compareImages(result1, result2)
-            _uiState.update { it.copy(comparisonResult = comparisonResult, isComparing = false) }
+            _uiState.update {
+                it.copy(
+                    cameraState = it.cameraState.copy(
+                        comparisonResult = comparisonResult,
+                        isComparing = false,
+                    ),
+                )
+            }
+            if (comparisonResult.startsWith("⚠") || comparisonResult.startsWith("❌")) {
+                _showSnackBar.tryEmit(comparisonResult)
+            }
+        }
+    }
+
+    private fun compareTestImages(
+        result1: FaceResult?,
+        result2: FaceResult?,
+    ) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(testImageState = it.testImageState.copy(isComparing = true)) }
+            val comparisonResult = compareImages(result1, result2)
+            _uiState.update {
+                it.copy(
+                    testImageState = it.testImageState.copy(
+                        comparisonResult = comparisonResult,
+                        isComparing = false,
+                    ),
+                )
+            }
             if (comparisonResult.startsWith("⚠") || comparisonResult.startsWith("❌")) {
                 _showSnackBar.tryEmit(comparisonResult)
             }

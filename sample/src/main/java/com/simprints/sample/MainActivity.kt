@@ -15,7 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simprints.sample.ui.models.CameraTarget
+import com.simprints.sample.ui.models.camera.CameraTarget
+import com.simprints.sample.ui.models.camera.SimFaceCameraActions
+import com.simprints.sample.ui.models.images.SimFaceTestImageActions
 import com.simprints.sample.ui.screens.SimFaceDemoScreen
 import com.simprints.sample.ui.theme.SimFaceTesterTheme
 
@@ -37,6 +39,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            val cameraActions = SimFaceCameraActions(
+                onCaptureFace1 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_1) },
+                onCaptureFace2 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_2) },
+                onCompareCaptured = simFaceDemoViewModel::compareCapturedFaces,
+            )
+            val testImageActions = SimFaceTestImageActions(
+                onLoadObama1 = simFaceDemoViewModel::loadTestImage1,
+                onLoadObama2 = simFaceDemoViewModel::loadTestImage2,
+                onLoadBush = simFaceDemoViewModel::loadTestImage3,
+                onLoadLowQuality = simFaceDemoViewModel::loadTestImage4,
+                onCompareObamaToObama = simFaceDemoViewModel::compareObamaWithObama,
+                onCompareObamaToBush = simFaceDemoViewModel::compareObamaWithBush,
+            )
             SimFaceTesterTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -48,17 +63,10 @@ class MainActivity : ComponentActivity() {
                         snackbarHostState = snackbarHostState,
                         onDetectFacesForPreview = simFaceDemoViewModel::detectFacesForPreview,
                         onSelectTab = simFaceDemoViewModel::selectTab,
-                        onCaptureFace1 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_1) },
-                        onCaptureFace2 = { simFaceDemoViewModel.openCamera(CameraTarget.FACE_2) },
                         onDismissCamera = simFaceDemoViewModel::dismissCamera,
                         onImageCaptured = simFaceDemoViewModel::processCapturedBitmap,
-                        onLoadObama1 = simFaceDemoViewModel::loadTestImage1,
-                        onLoadObama2 = simFaceDemoViewModel::loadTestImage2,
-                        onLoadBush = simFaceDemoViewModel::loadTestImage3,
-                        onLoadLowQuality = simFaceDemoViewModel::loadTestImage4,
-                        onCompareCaptured = simFaceDemoViewModel::compareCapturedFaces,
-                        onCompareObamaToObama = simFaceDemoViewModel::compareObamaWithObama,
-                        onCompareObamaToBush = simFaceDemoViewModel::compareObamaWithBush,
+                        cameraActions = cameraActions,
+                        testImageActions = testImageActions,
                     )
                 }
             }

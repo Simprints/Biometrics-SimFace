@@ -1,18 +1,14 @@
 package com.simprints.sample.ui.models
 
 import com.simprints.sample.SimFaceDestination
+import com.simprints.sample.ui.models.camera.CameraTarget
+import com.simprints.sample.ui.models.camera.SimFaceCameraUiState
+import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 
 data class SimFaceUiState(
-    val result1: FaceResult? = null,
-    val result2: FaceResult? = null,
-    val result3: FaceResult? = null,
-    val result4: FaceResult? = null,
-    val capturedImage1: FaceResult? = null,
-    val capturedImage2: FaceResult? = null,
-    val comparisonResult: String? = null,
-    val isProcessing: Boolean = false,
-    val isComparing: Boolean = false,
     val selectedTab: DemoTab = DemoTab.CAMERA,
     val backStack: List<SimFaceDestination> = listOf(SimFaceDestination.Main),
-    val cameraTarget: CameraTarget = CameraTarget.FACE_1,
+
+    val cameraState: SimFaceCameraUiState = SimFaceCameraUiState(),
+    val testImageState: SimFaceTestImageUiState = SimFaceTestImageUiState(),
 )

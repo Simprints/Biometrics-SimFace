@@ -18,18 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.simprints.sample.ui.composables.ComparisonResultCard
 import com.simprints.sample.ui.composables.DisplayFaceResult
 import com.simprints.sample.ui.composables.TestImagesSection
-import com.simprints.sample.ui.models.SimFaceUiState
+import com.simprints.sample.ui.models.images.SimFaceTestImageActions
+import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 
 @Composable
 fun SimFaceTestImageDemoScreen(
     modifier: Modifier = Modifier,
-    uiState: SimFaceUiState,
-    onLoadObama1: () -> Unit,
-    onLoadObama2: () -> Unit,
-    onLoadBush: () -> Unit,
-    onLoadLowQuality: () -> Unit,
-    onCompareObamaToObama: () -> Unit,
-    onCompareObamaToBush: () -> Unit,
+    uiState: SimFaceTestImageUiState,
+    actions: SimFaceTestImageActions,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,12 +42,12 @@ fun SimFaceTestImageDemoScreen(
             result1 = uiState.result1,
             result2 = uiState.result2,
             result3 = uiState.result3,
-            onLoadObama1 = onLoadObama1,
-            onLoadObama2 = onLoadObama2,
-            onLoadBush = onLoadBush,
-            onLoadLowQuality = onLoadLowQuality,
-            onCompareObamaToObama = onCompareObamaToObama,
-            onCompareObamaToBush = onCompareObamaToBush,
+            onLoadObama1 = actions.onLoadObama1,
+            onLoadObama2 = actions.onLoadObama2,
+            onLoadBush = actions.onLoadBush,
+            onLoadLowQuality = actions.onLoadLowQuality,
+            onCompareObamaToObama = actions.onCompareObamaToObama,
+            onCompareObamaToBush = actions.onCompareObamaToBush,
         )
 
         if (uiState.isProcessing || uiState.isComparing) {

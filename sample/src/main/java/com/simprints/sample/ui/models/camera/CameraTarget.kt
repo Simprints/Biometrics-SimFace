@@ -1,4 +1,4 @@
-package com.simprints.sample.ui.models
+package com.simprints.sample.ui.models.camera
 
 enum class CameraTarget {
     FACE_1,

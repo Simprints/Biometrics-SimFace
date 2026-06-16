@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.sample.SimFaceDestination
 import com.simprints.sample.ui.models.DemoTab
+import com.simprints.sample.ui.models.camera.SimFaceCameraActions
+import com.simprints.sample.ui.models.images.SimFaceTestImageActions
 import com.simprints.sample.ui.models.SimFaceUiState
 
 @Composable
@@ -21,17 +23,10 @@ fun SimFaceDemoScreen(
     snackbarHostState: SnackbarHostState,
     onDetectFacesForPreview: suspend (Bitmap) -> List<FaceDetection>,
     onSelectTab: (DemoTab) -> Unit,
-    onCaptureFace1: () -> Unit,
-    onCaptureFace2: () -> Unit,
     onDismissCamera: () -> Unit,
     onImageCaptured: (Bitmap) -> Unit,
-    onLoadObama1: () -> Unit,
-    onLoadObama2: () -> Unit,
-    onLoadBush: () -> Unit,
-    onLoadLowQuality: () -> Unit,
-    onCompareCaptured: () -> Unit,
-    onCompareObamaToObama: () -> Unit,
-    onCompareObamaToBush: () -> Unit,
+    cameraActions: SimFaceCameraActions,
+    testImageActions: SimFaceTestImageActions,
 ) {
     val isCameraRoute = uiState.backStack.lastOrNull() == SimFaceDestination.Camera
     BackHandler(enabled = isCameraRoute) { onDismissCamera() }
@@ -39,7 +34,7 @@ fun SimFaceDemoScreen(
     if (isCameraRoute) {
         CameraPreviewScreen(
             onDetectFaces = onDetectFacesForPreview,
-            isProcessing = uiState.isProcessing,
+            isProcessing = uiState.cameraState.isProcessing,
             onImageCaptured = onImageCaptured,
             onDismiss = onDismissCamera,
         )
@@ -51,24 +46,17 @@ fun SimFaceDemoScreen(
             DemoTab.CAMERA -> {
                 SimFaceCameraDemoScreen(
                     modifier = Modifier.weight(1f),
-                    uiState = uiState,
+                    uiState = uiState.cameraState,
+                    actions = cameraActions,
                     snackbarHostState = snackbarHostState,
-                    onCaptureFace1 = onCaptureFace1,
-                    onCaptureFace2 = onCaptureFace2,
-                    onCompareCaptured = onCompareCaptured,
                 )
             }
 
             DemoTab.TEST_IMAGES -> {
                 SimFaceTestImageDemoScreen(
                     modifier = Modifier.weight(1f),
-                    uiState = uiState,
-                    onLoadObama1 = onLoadObama1,
-                    onLoadObama2 = onLoadObama2,
-                    onLoadBush = onLoadBush,
-                    onLoadLowQuality = onLoadLowQuality,
-                    onCompareObamaToObama = onCompareObamaToObama,
-                    onCompareObamaToBush = onCompareObamaToBush,
+                    uiState = uiState.testImageState,
+                    actions = testImageActions,
                 )
             }
         }
