@@ -1,12 +1,10 @@
-package com.simprints.sample.ui
+package com.simprints.sample.ui.screens.camera
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.sample.ui.models.FaceResult
-import com.simprints.sample.ui.models.camera.CameraTarget
-import com.simprints.sample.ui.models.camera.SimFaceCameraUiState
 import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -63,58 +61,59 @@ class SimFaceCameraViewModel(
 
     suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = repository.detectFaces(bitmap)
 
-    private suspend fun processImageFromBitmap(bitmap: Bitmap): FaceResult = withContext(ioDispatcher) {
-        try {
-            val faces = repository.detectFaces(bitmap)
-            if (faces.isEmpty()) {
-                return@withContext FaceResult(
+    private suspend fun processImageFromBitmap(bitmap: Bitmap): FaceResult =
+        withContext(ioDispatcher) {
+            try {
+                val faces = repository.detectFaces(bitmap)
+                if (faces.isEmpty()) {
+                    return@withContext FaceResult(
+                        bitmap = bitmap,
+                        success = false,
+                        message = "No faces detected",
+                        faces = emptyList(),
+                        embedding = null,
+                    )
+                }
+
+                val face = faces[0]
+                val embedding = try {
+                    repository.getEmbedding(face, bitmap)
+                } catch (_: Exception) {
+                    null
+                }
+
+                val message = buildString {
+                    appendLine("✅ Face detected!")
+                    appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
+                    appendLine("Number of faces: ${faces.size}")
+                    appendLine("Bounding Box: ${face.absoluteBoundingBox}")
+                    appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
+                    appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
+
+                    if (face.quality >= 0.6) {
+                        appendLine("\n🎉 Quality is good!")
+                    } else {
+                        appendLine("\n⚠️ Quality could be better")
+                    }
+                }
+
+                FaceResult(
+                    bitmap = bitmap,
+                    success = true,
+                    message = message,
+                    faces = faces,
+                    embedding = embedding,
+                )
+            } catch (e: Exception) {
+                FaceResult(
                     bitmap = bitmap,
                     success = false,
-                    message = "No faces detected",
+                    message = "Error: ${e.message}",
                     faces = emptyList(),
                     embedding = null,
                 )
             }
-
-            val face = faces[0]
-            val embedding = try {
-                repository.getEmbedding(face, bitmap)
-            } catch (_: Exception) {
-                null
-            }
-
-            val message = buildString {
-                appendLine("✅ Face detected!")
-                appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
-                appendLine("Number of faces: ${faces.size}")
-                appendLine("Bounding Box: ${face.absoluteBoundingBox}")
-                appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
-                appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
-
-                if (face.quality >= 0.6) {
-                    appendLine("\n🎉 Quality is good!")
-                } else {
-                    appendLine("\n⚠️ Quality could be better")
-                }
-            }
-
-            FaceResult(
-                bitmap = bitmap,
-                success = true,
-                message = message,
-                faces = faces,
-                embedding = embedding,
-            )
-        } catch (e: Exception) {
-            FaceResult(
-                bitmap = bitmap,
-                success = false,
-                message = "Error: ${e.message}",
-                faces = emptyList(),
-                embedding = null,
-            )
         }
-    }
 
     private suspend fun compareImages(
         result1: FaceResult?,

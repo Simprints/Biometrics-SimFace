@@ -1,10 +1,10 @@
-package com.simprints.sample
+package com.simprints.sample.di
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.simprints.sample.ui.SimFaceCameraViewModel
-import com.simprints.sample.ui.SimFaceTestImageViewModel
+import com.simprints.sample.ui.screens.camera.SimFaceCameraViewModel
+import com.simprints.sample.ui.screens.image.SimFaceTestImageViewModel
 import com.simprints.sample.wrappers.SampleImageLoader
 import com.simprints.sample.wrappers.SimFaceWrapper
 

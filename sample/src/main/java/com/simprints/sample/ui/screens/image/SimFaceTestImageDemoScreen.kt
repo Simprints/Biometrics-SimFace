@@ -1,5 +1,7 @@
-package com.simprints.sample.ui.screens
+package com.simprints.sample.ui.screens.image
 
+import android.app.Application
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,25 +10,46 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simprints.sample.di.SimFaceTestImageDemoViewModelFactory
 import com.simprints.sample.ui.composables.ComparisonResultCard
 import com.simprints.sample.ui.composables.DisplayFaceResult
 import com.simprints.sample.ui.composables.TestImagesSection
-import com.simprints.sample.ui.models.images.SimFaceTestImageActions
-import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 
 @Composable
 fun SimFaceTestImageDemoScreen(
     modifier: Modifier = Modifier,
-    uiState: SimFaceTestImageUiState,
-    actions: SimFaceTestImageActions,
+    snackbarHostState: SnackbarHostState,
 ) {
+    val context = LocalContext.current
+    val application = remember(context) { context.applicationContext as Application }
+    val viewModel = remember(application) {
+        ViewModelProvider(
+            context as ComponentActivity,
+            SimFaceTestImageDemoViewModelFactory(application),
+        )[SimFaceTestImageViewModel::class.java]
+    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel) {
+        viewModel.showSnackBarEffect.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -42,12 +65,12 @@ fun SimFaceTestImageDemoScreen(
             result1 = uiState.result1,
             result2 = uiState.result2,
             result3 = uiState.result3,
-            onLoadObama1 = actions.onLoadObama1,
-            onLoadObama2 = actions.onLoadObama2,
-            onLoadBush = actions.onLoadBush,
-            onLoadLowQuality = actions.onLoadLowQuality,
-            onCompareObamaToObama = actions.onCompareObamaToObama,
-            onCompareObamaToBush = actions.onCompareObamaToBush,
+            onLoadObama1 = viewModel::loadTestImage1,
+            onLoadObama2 = viewModel::loadTestImage2,
+            onLoadBush = viewModel::loadTestImage3,
+            onLoadLowQuality = viewModel::loadTestImage4,
+            onCompareObamaToObama = viewModel::compareObamaWithObama,
+            onCompareObamaToBush = viewModel::compareObamaWithBush,
         )
 
         if (uiState.isProcessing || uiState.isComparing) {

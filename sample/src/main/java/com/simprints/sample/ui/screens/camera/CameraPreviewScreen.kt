@@ -1,4 +1,4 @@
-package com.simprints.sample.ui.screens
+package com.simprints.sample.ui.screens.camera
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -73,6 +73,7 @@ data class FaceDetectionResult(
 
 @Composable
 fun CameraPreviewScreen(
+    modifier: Modifier = Modifier,
     onDetectFaces: suspend (Bitmap) -> List<FaceDetection>,
     onImageCaptured: (Bitmap) -> Unit,
     onDismiss: () -> Unit,
@@ -92,11 +93,7 @@ fun CameraPreviewScreen(
 
     DisposableEffect(Unit) { onDispose { cameraProviderFuture.get()?.unbindAll() } }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
-    ) {
+    Box(modifier = modifier.fillMaxSize()) {
         // Camera Preview
         AndroidView(
             factory = { ctx ->

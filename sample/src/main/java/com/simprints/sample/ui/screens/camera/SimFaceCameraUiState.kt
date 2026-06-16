@@ -1,4 +1,4 @@
-package com.simprints.sample.ui.models.camera
+package com.simprints.sample.ui.screens.camera
 
 import com.simprints.sample.ui.models.FaceResult
 

@@ -1,11 +1,10 @@
-package com.simprints.sample.ui
+package com.simprints.sample.ui.screens.image
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simprints.sample.R
 import com.simprints.sample.ui.models.FaceResult
-import com.simprints.sample.ui.models.images.SimFaceTestImageUiState
 import com.simprints.sample.wrappers.SampleImageLoader
 import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher

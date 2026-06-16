@@ -1,4 +1,4 @@
-package com.simprints.sample.ui.models.images
+package com.simprints.sample.ui.screens.image
 
 import com.simprints.sample.ui.models.FaceResult
 
@@ -11,4 +11,3 @@ data class SimFaceTestImageUiState(
     val isProcessing: Boolean = false,
     val isComparing: Boolean = false,
 )
-
