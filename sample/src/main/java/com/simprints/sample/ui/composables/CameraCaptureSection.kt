@@ -29,10 +29,7 @@ fun CameraCaptureSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -68,10 +65,7 @@ fun CameraCaptureSection(
             Button(
                 onClick = onCompareCaptured,
                 enabled = !isBusy && capturedImage1 != null && capturedImage2 != null,
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                    ),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Compare Captured Faces")

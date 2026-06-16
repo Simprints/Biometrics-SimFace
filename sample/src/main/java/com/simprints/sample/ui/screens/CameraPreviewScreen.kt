@@ -92,7 +92,11 @@ fun CameraPreviewScreen(
 
     DisposableEffect(Unit) { onDispose { cameraProviderFuture.get()?.unbindAll() } }
 
-    Box(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
+    ) {
         // Camera Preview
         AndroidView(
             factory = { ctx ->
@@ -150,28 +154,25 @@ fun CameraPreviewScreen(
 
         // UI Overlay
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             // Top info card
-            Card(
-                colors =
-                    CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f)),
-            ) {
+            Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.7f))) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text =
-                            if (faceDetectionResult?.faces?.isNotEmpty() == true) {
-                                "✓ Face Detected"
-                            } else {
-                                "⚠ No Face Detected"
-                            },
-                        color =
-                            if (faceDetectionResult?.faces?.isNotEmpty() == true) {
-                                Color.Green
-                            } else {
-                                Color.Yellow
-                            },
+                        text = if (faceDetectionResult?.faces?.isNotEmpty() == true) {
+                            "✓ Face Detected"
+                        } else {
+                            "⚠ No Face Detected"
+                        },
+                        color = if (faceDetectionResult?.faces?.isNotEmpty() == true) {
+                            Color.Green
+                        } else {
+                            Color.Yellow
+                        },
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                     )
@@ -180,12 +181,11 @@ fun CameraPreviewScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Quality: ${"%.2f".format(face.quality)}",
-                            color =
-                                when {
-                                    face.quality >= 0.7 -> Color.Green
-                                    face.quality >= 0.5 -> Color.Yellow
-                                    else -> Color.Red
-                                },
+                            color = when {
+                                face.quality >= 0.7 -> Color.Green
+                                face.quality >= 0.5 -> Color.Yellow
+                                else -> Color.Red
+                            },
                             fontSize = 14.sp,
                         )
                         Text(
@@ -255,16 +255,14 @@ fun CameraPreviewScreen(
                             )
                         }
                     },
-                    enabled =
-                        !isCapturing &&
-                            !isProcessing &&
-                            faceDetectionResult?.faces?.isNotEmpty() == true,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF20b2d0),
-                            disabledContainerColor = Color.Gray,
-                        ),
-                    modifier = Modifier.size(80.dp).align(Alignment.Center),
+                    enabled = !isCapturing && !isProcessing && faceDetectionResult?.faces?.isNotEmpty() == true,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF20b2d0),
+                        disabledContainerColor = Color.Gray,
+                    ),
+                    modifier = Modifier
+                        .size(80.dp)
+                        .align(Alignment.Center),
                     contentPadding = PaddingValues(0.dp),
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -280,19 +278,16 @@ fun CameraPreviewScreen(
         // Processing overlay
         if (isProcessing) {
             Box(
-                modifier = Modifier.fillMaxSize().systemBarsPadding(),
                 contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .systemBarsPadding(),
             ) {
-                Card(
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = Color.Black.copy(alpha = 0.8f),
-                        ),
-                ) {
+                Card(colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.8f))) {
                     Column(
-                        modifier = Modifier.padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(32.dp),
                     ) {
                         CircularProgressIndicator(
                             color = Color.White,
@@ -311,29 +306,26 @@ fun CameraPreviewScreen(
     }
 
     LaunchedEffect(Unit) {
-        val cameraProvider =
-            suspendCancellableCoroutine<ProcessCameraProvider> { continuation ->
-                cameraProviderFuture.addListener(
-                    { continuation.resume(cameraProviderFuture.get()) },
-                    ContextCompat.getMainExecutor(context),
-                )
-            }
+        val cameraProvider = suspendCancellableCoroutine<ProcessCameraProvider> { continuation ->
+            cameraProviderFuture.addListener(
+                { continuation.resume(cameraProviderFuture.get()) },
+                ContextCompat.getMainExecutor(context),
+            )
+        }
 
         cameraProvider.unbindAll()
 
         val preview = Preview.Builder().build()
 
-        val imageAnalyzer =
-            ImageAnalysis
-                .Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
+        val imageAnalyzer = ImageAnalysis
+            .Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
 
-        imageCapture =
-            ImageCapture
-                .Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
+        imageCapture = ImageCapture
+            .Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+            .build()
 
         imageAnalyzer.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy ->
             CoroutineScope(Dispatchers.Default).launch {
@@ -405,14 +397,7 @@ private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
         vBuffer.get(nv21, ySize, vSize)
         uBuffer.get(nv21, ySize + vSize, uSize)
 
-        val yuvImage =
-            YuvImage(
-                nv21,
-                ImageFormat.NV21,
-                image.width,
-                image.height,
-                null,
-            )
+        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
 
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
@@ -430,9 +415,7 @@ private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
     return bitmap
 }
 
-private fun resizeBitmap(
-    bitmap: Bitmap,
-): Bitmap {
+private fun resizeBitmap(bitmap: Bitmap): Bitmap {
     val width = bitmap.width
     val height = bitmap.height
 

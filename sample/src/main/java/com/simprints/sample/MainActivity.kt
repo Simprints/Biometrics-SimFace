@@ -16,8 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simprints.sample.ui.models.CameraTarget
-import com.simprints.sample.ui.models.DemoTab
-import com.simprints.sample.ui.models.SimFaceUiEffect
 import com.simprints.sample.ui.screens.SimFaceDemoScreen
 import com.simprints.sample.ui.theme.SimFaceTesterTheme
 
@@ -34,18 +32,8 @@ class MainActivity : ComponentActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
 
             LaunchedEffect(simFaceDemoViewModel) {
-                simFaceDemoViewModel.uiEffects.collect { effect ->
-                    when (effect) {
-                        is SimFaceUiEffect.ComparisonError -> snackbarHostState.showSnackbar(effect.message)
-                        is SimFaceUiEffect.ImageProcessingError -> {
-                            val prefix =
-                                when (effect.source) {
-                                    SimFaceUiEffect.ImageSource.CAPTURE -> "Capture"
-                                    SimFaceUiEffect.ImageSource.TEST_IMAGE -> "Image"
-                                }
-                            snackbarHostState.showSnackbar("$prefix error: ${effect.message}")
-                        }
-                    }
+                simFaceDemoViewModel.showSnackBarEffect.collect { effect ->
+                    snackbarHostState.showSnackbar(effect)
                 }
             }
 

@@ -32,13 +32,12 @@ fun SimFaceTestImageDemoScreen(
     onCompareObamaToBush: () -> Unit,
 ) {
     Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
     ) {
         Text(text = "SimFace Test Images Demo", fontSize = 24.sp, fontWeight = FontWeight.Bold)
 

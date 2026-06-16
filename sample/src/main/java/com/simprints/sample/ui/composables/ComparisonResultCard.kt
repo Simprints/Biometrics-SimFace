@@ -18,10 +18,7 @@ fun ComparisonResultCard(comparisonResult: String?) {
     comparisonResult?.let { comparison ->
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors =
-                CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(text = comparison, fontSize = 14.sp, fontWeight = FontWeight.Medium)

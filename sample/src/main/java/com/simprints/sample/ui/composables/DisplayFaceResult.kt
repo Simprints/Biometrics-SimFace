@@ -35,7 +35,9 @@ fun DisplayFaceResult(
                 Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = "Processed face $title",
-                    modifier = Modifier.fillMaxWidth().height(250.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
                 )
             }
 
@@ -43,12 +45,11 @@ fun DisplayFaceResult(
                 text = result.message,
                 fontSize = 14.sp,
                 fontWeight = if (result.success) FontWeight.Normal else FontWeight.Bold,
-                color =
-                    if (result.success) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.error
-                    },
+                color = if (result.success) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.error
+                },
             )
         }
     }

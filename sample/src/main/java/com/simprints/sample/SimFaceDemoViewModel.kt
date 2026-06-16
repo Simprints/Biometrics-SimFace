@@ -4,12 +4,12 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simprints.biometrics.simface.data.FaceDetection
-import com.simprints.sample.data.FaceRepository
 import com.simprints.sample.ui.models.CameraTarget
 import com.simprints.sample.ui.models.DemoTab
 import com.simprints.sample.ui.models.FaceResult
-import com.simprints.sample.ui.models.SimFaceUiEffect
 import com.simprints.sample.ui.models.SimFaceUiState
+import com.simprints.sample.wrappers.SampleImageLoader
+import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,15 +23,15 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class SimFaceDemoViewModel(
-    private val repository: FaceRepository,
+    private val repository: SimFaceWrapper,
     private val imageLoader: SampleImageLoader,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SimFaceUiState())
     val uiState: StateFlow<SimFaceUiState> = _uiState.asStateFlow()
 
-    private val _uiEffects = MutableSharedFlow<SimFaceUiEffect>(extraBufferCapacity = 1)
-    val uiEffects: SharedFlow<SimFaceUiEffect> = _uiEffects
+    private val _showSnackBar = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val showSnackBarEffect: SharedFlow<String> = _showSnackBar
 
     fun openCamera(target: CameraTarget) {
         _uiState.update { it.copy(cameraTarget = target, backStack = it.backStack + SimFaceDestination.Camera) }
@@ -57,21 +57,13 @@ class SimFaceDemoViewModel(
             val result = processImageFromBitmap(bitmap)
             _uiState.update {
                 when (it.cameraTarget) {
-                    CameraTarget.FACE_1 ->
-                        it.copy(
-                            capturedImage1 = result,
-                            isProcessing = false,
-                        )
-                    CameraTarget.FACE_2 ->
-                        it.copy(
-                            capturedImage2 = result,
-                            isProcessing = false,
-                        )
+                    CameraTarget.FACE_1 -> it.copy(capturedImage1 = result, isProcessing = false)
+                    CameraTarget.FACE_2 -> it.copy(capturedImage2 = result, isProcessing = false)
                 }
             }
             dismissCamera()
             if (!result.success) {
-                emitProcessingError(SimFaceUiEffect.ImageSource.CAPTURE, result.message)
+                _showSnackBar.tryEmit("Capture error: ${result.message}")
             }
         }
     }
@@ -89,11 +81,6 @@ class SimFaceDemoViewModel(
     fun compareObamaWithObama() = compareFaces(uiState.value.result1, uiState.value.result2)
 
     fun compareObamaWithBush() = compareFaces(uiState.value.result1, uiState.value.result3)
-
-    fun compareFaceResults(
-        result1: FaceResult?,
-        result2: FaceResult?,
-    ) = compareFaces(result1, result2)
 
     suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = repository.detectFaces(bitmap)
 
@@ -113,7 +100,7 @@ class SimFaceDemoViewModel(
                 }
             }
             if (!result.success) {
-                emitProcessingError(SimFaceUiEffect.ImageSource.TEST_IMAGE, result.message)
+                _showSnackBar.tryEmit("Image error: ${result.message}")
             }
         }
     }
@@ -127,23 +114,20 @@ class SimFaceDemoViewModel(
             val comparisonResult = compareImages(result1, result2)
             _uiState.update { it.copy(comparisonResult = comparisonResult, isComparing = false) }
             if (comparisonResult.startsWith("⚠") || comparisonResult.startsWith("❌")) {
-                emitComparisonError(comparisonResult)
+                _showSnackBar.tryEmit(comparisonResult)
             }
         }
     }
 
     private suspend fun processImage(imageRes: Int): FaceResult = withContext(ioDispatcher) {
         try {
-            val bitmap = imageLoader.load(imageRes)
-            if (bitmap == null) {
-                return@withContext FaceResult(
-                    bitmap = null,
-                    success = false,
-                    message = "Could not decode test image",
-                    faces = emptyList(),
-                    embedding = null,
-                )
-            }
+            val bitmap = imageLoader.load(imageRes) ?: return@withContext FaceResult(
+                bitmap = null,
+                success = false,
+                message = "Could not decode test image",
+                faces = emptyList(),
+                embedding = null,
+            )
             processImageFromBitmap(bitmap)
         } catch (e: Exception) {
             FaceResult(
@@ -170,28 +154,26 @@ class SimFaceDemoViewModel(
             }
 
             val face = faces[0]
-            val embedding =
-                try {
-                    repository.getEmbedding(face, bitmap)
-                } catch (_: Exception) {
-                    null
-                }
+            val embedding = try {
+                repository.getEmbedding(face, bitmap)
+            } catch (_: Exception) {
+                null
+            }
 
-            val message =
-                buildString {
-                    appendLine("✅ Face detected!")
-                    appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
-                    appendLine("Number of faces: ${faces.size}")
-                    appendLine("Bounding Box: ${face.absoluteBoundingBox}")
-                    appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
-                    appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
+            val message = buildString {
+                appendLine("✅ Face detected!")
+                appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
+                appendLine("Number of faces: ${faces.size}")
+                appendLine("Bounding Box: ${face.absoluteBoundingBox}")
+                appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
+                appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
 
-                    if (face.quality >= 0.6) {
-                        appendLine("\n🎉 Quality is good!")
-                    } else {
-                        appendLine("\n⚠️ Quality could be better")
-                    }
+                if (face.quality >= 0.6) {
+                    appendLine("\n🎉 Quality is good!")
+                } else {
+                    appendLine("\n⚠️ Quality could be better")
                 }
+            }
 
             FaceResult(
                 bitmap = bitmap,
@@ -251,17 +233,6 @@ class SimFaceDemoViewModel(
     override fun onCleared() {
         repository.release()
         super.onCleared()
-    }
-
-    private fun emitProcessingError(
-        source: SimFaceUiEffect.ImageSource,
-        message: String,
-    ) {
-        _uiEffects.tryEmit(SimFaceUiEffect.ImageProcessingError(source = source, message = message))
-    }
-
-    private fun emitComparisonError(message: String) {
-        _uiEffects.tryEmit(SimFaceUiEffect.ComparisonError(message))
     }
 }
 

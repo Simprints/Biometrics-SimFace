@@ -35,12 +35,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SimFaceCameraDemoScreen(
-    modifier: Modifier = Modifier,
     uiState: SimFaceUiState,
     snackbarHostState: SnackbarHostState,
     onCaptureFace1: () -> Unit,
     onCaptureFace2: () -> Unit,
     onCompareCaptured: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val snackbarScope = rememberCoroutineScope()
@@ -51,15 +51,14 @@ fun SimFaceCameraDemoScreen(
         )
     }
 
-    val permissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
-            hasCameraPermission = isGranted
-            if (!isGranted) {
-                snackbarScope.launch {
-                    snackbarHostState.showSnackbar("Camera permission is required to capture images")
-                }
+    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
+        hasCameraPermission = isGranted
+        if (!isGranted) {
+            snackbarScope.launch {
+                snackbarHostState.showSnackbar("Camera permission is required to capture images")
             }
         }
+    }
 
     fun checkAndRequestCameraPermission(onPermissionGranted: () -> Unit) {
         when {
@@ -69,13 +68,12 @@ fun SimFaceCameraDemoScreen(
     }
 
     Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
     ) {
         Text(text = "SimFace Camera Demo", fontSize = 24.sp, fontWeight = FontWeight.Bold)
 

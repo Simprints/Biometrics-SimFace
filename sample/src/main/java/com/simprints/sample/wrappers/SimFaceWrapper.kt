@@ -1,4 +1,4 @@
-package com.simprints.sample.data
+package com.simprints.sample.wrappers
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,7 +8,7 @@ import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class FaceRepository(
+class SimFaceWrapper(
     context: Context,
 ) {
     private val simFace = SimFace().apply { initialize(SimFaceConfig(context)) }

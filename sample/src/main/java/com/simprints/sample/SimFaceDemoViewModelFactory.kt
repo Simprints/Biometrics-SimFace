@@ -3,7 +3,8 @@ package com.simprints.sample
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.simprints.sample.data.FaceRepository
+import com.simprints.sample.wrappers.SampleImageLoader
+import com.simprints.sample.wrappers.SimFaceWrapper
 
 class SimFaceDemoViewModelFactory(
     private val application: Application,
@@ -12,8 +13,8 @@ class SimFaceDemoViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SimFaceDemoViewModel::class.java)) {
             return SimFaceDemoViewModel(
-                repository = FaceRepository(application.applicationContext),
-                imageLoader = AndroidSampleImageLoader(application.resources),
+                repository = SimFaceWrapper(application.applicationContext),
+                imageLoader = SampleImageLoader(application.resources),
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
