@@ -1,4 +1,4 @@
-package com.simprints.sample
+package com.simprints.sample.ui.screens
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -47,21 +47,22 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.simprints.biometrics.simface.SimFace
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+
+private const val ANALYSIS_IMAGE_MAX_WIDTH = 500
 
 data class FaceDetectionResult(
     val faces: List<FaceDetection>,
@@ -72,7 +73,7 @@ data class FaceDetectionResult(
 
 @Composable
 fun CameraPreviewScreen(
-    simFace: SimFace,
+    onDetectFaces: suspend (Bitmap) -> List<FaceDetection>,
     onImageCaptured: (Bitmap) -> Unit,
     onDismiss: () -> Unit,
     isProcessing: Boolean = false,
@@ -226,8 +227,7 @@ fun CameraPreviewScreen(
 
                                                 // Resize bitmap to 500px width for faster
                                                 // processing
-                                                val resizedBitmap =
-                                                    resizeBitmap(bitmap, 500)
+                                                val resizedBitmap = resizeBitmap(bitmap)
 
                                                 withContext(Dispatchers.Main) {
                                                     onImageCaptured(resizedBitmap)
@@ -312,7 +312,7 @@ fun CameraPreviewScreen(
 
     LaunchedEffect(Unit) {
         val cameraProvider =
-            suspendCoroutine<ProcessCameraProvider> { continuation ->
+            suspendCancellableCoroutine<ProcessCameraProvider> { continuation ->
                 cameraProviderFuture.addListener(
                     { continuation.resume(cameraProviderFuture.get()) },
                     ContextCompat.getMainExecutor(context),
@@ -339,8 +339,8 @@ fun CameraPreviewScreen(
             CoroutineScope(Dispatchers.Default).launch {
                 try {
                     val bitmap = imageProxyToBitmap(imageProxy)
-                    val resizedBitmap = resizeBitmap(bitmap, 500)
-                    val faces = simFace.detectFaceBlocking(resizedBitmap)
+                    val resizedBitmap = resizeBitmap(bitmap)
+                    val faces = onDetectFaces(resizedBitmap)
 
                     withContext(Dispatchers.Main) {
                         faceDetectionResult =
@@ -432,17 +432,16 @@ private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
 
 private fun resizeBitmap(
     bitmap: Bitmap,
-    maxWidth: Int,
 ): Bitmap {
     val width = bitmap.width
     val height = bitmap.height
 
-    if (width <= maxWidth) {
+    if (width <= ANALYSIS_IMAGE_MAX_WIDTH) {
         return bitmap
     }
 
     val aspectRatio = height.toFloat() / width.toFloat()
-    val newWidth = maxWidth
+    val newWidth = ANALYSIS_IMAGE_MAX_WIDTH
     val newHeight = (newWidth * aspectRatio).toInt()
 
     return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
