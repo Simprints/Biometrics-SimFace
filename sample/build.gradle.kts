@@ -41,6 +41,7 @@ kotlin {
 
 dependencies {
     implementation(project(":simface"))
+    implementation(project(":simantispoofing"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

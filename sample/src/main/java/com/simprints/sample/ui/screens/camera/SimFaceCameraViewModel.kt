@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simprints.biometrics.simface.data.FaceDetection
 import com.simprints.sample.ui.models.FaceResult
+import com.simprints.sample.wrappers.SimAntiSpoofingWrapper
 import com.simprints.sample.wrappers.SimFaceWrapper
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,8 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class SimFaceCameraViewModel(
-    private val repository: SimFaceWrapper,
+    private val simFace: SimFaceWrapper,
+    private val antiSpoofing: SimAntiSpoofingWrapper,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SimFaceCameraUiState())
@@ -59,61 +61,66 @@ class SimFaceCameraViewModel(
         }
     }
 
-    suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = repository.detectFaces(bitmap)
+    suspend fun detectFacesForPreview(bitmap: Bitmap): List<FaceDetection> = simFace.detectFaces(bitmap)
 
-    private suspend fun processImageFromBitmap(bitmap: Bitmap): FaceResult =
-        withContext(ioDispatcher) {
-            try {
-                val faces = repository.detectFaces(bitmap)
-                if (faces.isEmpty()) {
-                    return@withContext FaceResult(
-                        bitmap = bitmap,
-                        success = false,
-                        message = "No faces detected",
-                        faces = emptyList(),
-                        embedding = null,
-                    )
-                }
-
-                val face = faces[0]
-                val embedding = try {
-                    repository.getEmbedding(face, bitmap)
-                } catch (_: Exception) {
-                    null
-                }
-
-                val message = buildString {
-                    appendLine("✅ Face detected!")
-                    appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
-                    appendLine("Number of faces: ${faces.size}")
-                    appendLine("Bounding Box: ${face.absoluteBoundingBox}")
-                    appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
-                    appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
-
-                    if (face.quality >= 0.6) {
-                        appendLine("\n🎉 Quality is good!")
-                    } else {
-                        appendLine("\n⚠️ Quality could be better")
-                    }
-                }
-
-                FaceResult(
-                    bitmap = bitmap,
-                    success = true,
-                    message = message,
-                    faces = faces,
-                    embedding = embedding,
-                )
-            } catch (e: Exception) {
-                FaceResult(
+    private suspend fun processImageFromBitmap(bitmap: Bitmap): FaceResult = withContext(ioDispatcher) {
+        try {
+            val faces = simFace.detectFaces(bitmap)
+            if (faces.isEmpty()) {
+                return@withContext FaceResult(
                     bitmap = bitmap,
                     success = false,
-                    message = "Error: ${e.message}",
+                    message = "No faces detected",
                     faces = emptyList(),
                     embedding = null,
                 )
             }
+
+            val face = faces[0]
+            val (croppedFace, embedding) = try {
+                simFace.getEmbedding(face, bitmap)
+            } catch (_: Exception) {
+                null to null
+            }
+
+            val (spoofAlignedFace, spoofScore) = antiSpoofing.isSpoofed(face, bitmap)
+
+            val message = buildString {
+                appendLine("✅ Face detected!")
+                appendLine("Quality Score: ${"%.2f".format(Locale.US, face.quality)}")
+                appendLine("Number of faces: ${faces.size}")
+                appendLine("Bounding Box: ${face.absoluteBoundingBox}")
+                appendLine("Yaw: ${"%.1f".format(Locale.US, face.yaw)}°")
+                appendLine("Roll: ${"%.1f".format(Locale.US, face.roll)}°")
+
+                appendLine("Spoof score: $spoofScore")
+
+                if (face.quality >= 0.6) {
+                    appendLine("\n🎉 Quality is good!")
+                } else {
+                    appendLine("\n⚠️ Quality could be better")
+                }
+            }
+
+            FaceResult(
+                bitmap = bitmap,
+                embeddingBitmap = croppedFace,
+                spoofBimap = spoofAlignedFace,
+                success = true,
+                message = message,
+                faces = faces,
+                embedding = embedding,
+            )
+        } catch (e: Exception) {
+            FaceResult(
+                bitmap = bitmap,
+                success = false,
+                message = "Error: ${e.message}",
+                faces = emptyList(),
+                embedding = null,
+            )
         }
+    }
 
     private suspend fun compareImages(
         result1: FaceResult?,
@@ -131,7 +138,7 @@ class SimFaceCameraViewModel(
                 return@withContext "⚠️ Could not extract embeddings from one or both images"
             }
 
-            val score = repository.verificationScore(embedding1, embedding2)
+            val score = simFace.verificationScore(embedding1, embedding2)
             val percentage = score * 100
 
             buildString {
@@ -153,7 +160,8 @@ class SimFaceCameraViewModel(
     }
 
     override fun onCleared() {
-        repository.release()
+        simFace.release()
+        antiSpoofing.release()
         super.onCleared()
     }
 }

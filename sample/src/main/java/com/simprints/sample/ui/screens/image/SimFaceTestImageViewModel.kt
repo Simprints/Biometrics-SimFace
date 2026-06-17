@@ -116,10 +116,10 @@ class SimFaceTestImageViewModel(
             }
 
             val face = faces[0]
-            val embedding = try {
+            val (embeddingBitmap, embedding) = try {
                 repository.getEmbedding(face, bitmap)
             } catch (_: Exception) {
-                null
+                null to null
             }
 
             val message = buildString {
@@ -139,6 +139,7 @@ class SimFaceTestImageViewModel(
 
             FaceResult(
                 bitmap = bitmap,
+                embeddingBitmap = embeddingBitmap,
                 success = true,
                 message = message,
                 faces = faces,

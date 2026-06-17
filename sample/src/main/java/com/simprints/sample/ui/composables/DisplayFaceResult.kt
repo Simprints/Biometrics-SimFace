@@ -3,6 +3,7 @@ package com.simprints.sample.ui.composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,14 +32,34 @@ fun DisplayFaceResult(
         ) {
             Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = titleColor)
 
-            result.bitmap?.let { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Processed face $title",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp),
-                )
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                result.bitmap?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Processed face $title",
+                        modifier = Modifier
+                            .height(250.dp),
+                    )
+                }
+                result.embeddingBitmap?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Processed face $title",
+                        modifier = Modifier
+                            .height(250.dp),
+                    )
+                }
+                result.spoofBimap?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Processed face $title",
+                        modifier = Modifier
+                            .height(250.dp),
+                    )
+                }
             }
 
             Text(

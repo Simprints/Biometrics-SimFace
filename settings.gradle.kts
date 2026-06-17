@@ -27,5 +27,6 @@ rootProject.name = "Biometrics-SimFace"
 
 include(":simq")
 include(":simface")
+include(":simantispoofing")
 
 include(":sample")

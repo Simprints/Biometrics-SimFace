@@ -14,6 +14,7 @@ opencv = "4.13.0"
 tensorflowLite = "2.17.0"
 tensorflowLiteMetadata = "0.5.0"
 tensorflowLiteSupport = "0.5.0"
+tensorflowLiteOps = "2.16.1"
 truth = "1.4.5"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -27,6 +28,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
 tensorflow-lite-metadata = { module = "org.tensorflow:tensorflow-lite-metadata", version.ref = "tensorflowLiteMetadata" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
+tensorflow-lite-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflowLiteOps" }
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
 ejml-simple = { module = "org.ejml:ejml-simple", version.ref = "ejmlSimple" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

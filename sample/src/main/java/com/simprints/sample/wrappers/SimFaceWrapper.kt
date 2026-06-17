@@ -19,9 +19,9 @@ class SimFaceWrapper(
     suspend fun getEmbedding(
         face: FaceDetection,
         sourceBitmap: Bitmap,
-    ): ByteArray? = withContext(Dispatchers.IO) {
+    ): Pair<Bitmap, ByteArray?> = withContext(Dispatchers.IO) {
         val alignedFace = face.alignedFaceImage(sourceBitmap)
-        simFace.getEmbedding(alignedFace)
+        alignedFace to simFace.getEmbedding(alignedFace)
     }
 
     suspend fun verificationScore(
