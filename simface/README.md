@@ -33,8 +33,7 @@ val simFaceConfig = SimFaceConfig(context)
 simFace.initialize(simFaceConfig)
 
 // Load a bitmap image for processing
-val faceImage: Bitmap =
-    BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
+val faceImage: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
 lifecycleScope.launch {
     val faces = simFace.detectFaceBlocking(faceImage)
@@ -42,10 +41,10 @@ lifecycleScope.launch {
     if (faces.size != 1 || face.quality < 0.6) throw Exception("Quality not sufficient")
 
     // Align and crop the image of the face
-    val alignedFace = face.alignedFaceImage(bitmap)
+    val alignedFace = face.alignedFaceImage(faceImage)
 
     // Generate an embedding from the image
-    val probe = simFace.getFaceDetectionProcessor().getEmbedding(alignedFace)
+    val probe = simFace.getEmbedding(alignedFace)
 
     // Verify the embedding against itself
     val score = simFace.verificationScore(probe, probe)
@@ -64,12 +63,12 @@ simFace.initialize(simFaceConfig)
 val faceImage: Bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.royalty_free_good_face)
 
 // Note that this can be better handled with callbacks or coroutines
-simFace.getFaceDetectionProcessor().detectFace(faceImage, onSuccess = { faces ->
+simFace.detectFace(faceImage, onSuccess = { faces ->
     val face = faces[0]
     if (faces.size != 1 || face.quality < 0.6) throw Exception("Quality not sufficient")
 
     // Align and crop the image of the face
-    val alignedFace = face.alignedFaceImage(bitmap)
+    val alignedFace = face.alignedFaceImage(faceImage)
 
     // Generate an embedding from the image
     val probe = simFace.getEmbedding(alignedFace)

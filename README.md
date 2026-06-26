@@ -38,8 +38,16 @@ maven {
 Import the dependencies in `build.gradle.kts`:
 
 ```kotlin
+// To add the full Biometric SDK
 implementation("com.simprints.biometrics:simface:2026.1.0")
 
 // Or if only quality assessment is needed
 implementation("com.simprints.biometrics:simq:2026.1.0")
 ```
+
+### SimFace Demo app
+
+The `sample` module demonstrates end-to-end usage of SimFace APIs in a minimal app.
+It is intended as a reference implementation for integration and testing.
+
+Usage: Open the repository in Android Studio and run the `sample` module.
