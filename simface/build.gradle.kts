@@ -6,14 +6,15 @@ plugins {
 }
 
 val projectGroupId = "com.simprints.biometrics"
-val projectArtifactId = "simq"
+val projectArtifactId = "simface"
 val projectVersion = "2026.1.0"
 
 group = projectGroupId
 version = projectVersion
 
 android {
-    namespace = "com.simprints.simq"
+
+    namespace = "$projectGroupId.$projectArtifactId"
     compileSdk = 36
 
     defaultConfig {
@@ -32,11 +33,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
 }
 
 kotlin {
@@ -46,11 +42,18 @@ kotlin {
 }
 
 dependencies {
+    api(project(":simq"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    api(libs.opencv)
+    // Tensorflow versions that works with Edgeface
+    api(libs.tensorflow.lite.support)
+    api(libs.tensorflow.lite.metadata)
+    api(libs.tensorflow.lite)
+
+    // Face Detection and quality
+    api(libs.face.detection)
+
+    // For face alignment
+    api(libs.ejml.simple)
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.androidx.junit)

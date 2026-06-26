@@ -40,10 +40,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build libraries
-        run: ./gradlew build
+        run: ./gradlew simface:build
 
       - name: Publish to GitHub Packages
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publish
+        run: ./gradlew simface:publish
