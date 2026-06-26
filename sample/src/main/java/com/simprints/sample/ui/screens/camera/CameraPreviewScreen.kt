@@ -2,10 +2,7 @@ package com.simprints.sample.ui.screens.camera
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
 import android.graphics.Matrix
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -56,10 +53,15 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.simprints.biometrics.simface.data.FaceDetection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 
 private const val ANALYSIS_IMAGE_MAX_WIDTH = 500
@@ -88,10 +90,21 @@ fun CameraPreviewScreen(
     var isCapturing by remember { mutableStateOf(false) }
     var previewWidth by remember { mutableStateOf(0f) }
     var previewHeight by remember { mutableStateOf(0f) }
+    var latestAnalysisJob by remember { mutableStateOf<Job?>(null) }
+
+    val analysisDispatcher = remember { Executors.newSingleThreadExecutor().asCoroutineDispatcher() }
+    val analysisScope = remember { CoroutineScope(SupervisorJob() + analysisDispatcher) }
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
-    DisposableEffect(Unit) { onDispose { cameraProviderFuture.get()?.unbindAll() } }
+    DisposableEffect(Unit) {
+        onDispose {
+            latestAnalysisJob?.cancel()
+            analysisScope.cancel()
+            analysisDispatcher.close()
+            cameraProviderFuture.get()?.unbindAll()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         // Camera Preview
@@ -222,15 +235,7 @@ fun CameraPreviewScreen(
                                                 val bitmap = imageProxyToBitmap(image)
                                                 image.close()
 
-                                                // Resize bitmap to 500px width for faster
-                                                // processing
-                                                val resizedBitmap = resizeBitmap(bitmap)
-
-                                                withContext(Dispatchers.Main) {
-                                                    onImageCaptured(resizedBitmap)
-                                                    // Parent will handle the processing
-                                                    // state
-                                                }
+                                                withContext(Dispatchers.Main) { onImageCaptured(bitmap) }
                                             } catch (e: Exception) {
                                                 Log.e(
                                                     "CameraPreview",
@@ -317,6 +322,7 @@ fun CameraPreviewScreen(
         val imageAnalyzer = ImageAnalysis
             .Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
             .build()
 
         imageCapture = ImageCapture
@@ -325,7 +331,8 @@ fun CameraPreviewScreen(
             .build()
 
         imageAnalyzer.setAnalyzer(ContextCompat.getMainExecutor(context)) { imageProxy ->
-            CoroutineScope(Dispatchers.Default).launch {
+            latestAnalysisJob?.cancel()
+            latestAnalysisJob = analysisScope.launch {
                 try {
                     val bitmap = imageProxyToBitmap(imageProxy)
                     val resizedBitmap = resizeBitmap(bitmap)
@@ -367,49 +374,53 @@ fun CameraPreviewScreen(
 }
 
 private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
-    val planes = image.planes
-
-    var bitmap: Bitmap
-
-    // Check if it's JPEG format (from capture) or YUV format (from analysis)
-    if (planes.size == 1) {
-        // JPEG format - captured image
-        val buffer = planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
-        bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    val bitmap = if (image.planes.firstOrNull()?.pixelStride == 4) {
+        rgbaImageProxyToBitmap(image)
     } else {
-        // YUV format - analysis frame
-        val yBuffer = planes[0].buffer
-        val uBuffer = planes[1].buffer
-        val vBuffer = planes[2].buffer
-
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
-
-        val nv21 = ByteArray(ySize + uSize + vSize)
-
-        yBuffer.get(nv21, 0, ySize)
-        vBuffer.get(nv21, ySize, vSize)
-        uBuffer.get(nv21, ySize + vSize, uSize)
-
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
-
-        val imageBytes = out.toByteArray()
-        bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        jpegImageProxyToBitmap(image)
     }
 
-    // Rotate bitmap to correct orientation
-    val matrix = Matrix()
-    matrix.postRotate(image.imageInfo.rotationDegrees.toFloat())
+    val rotationDegrees = image.imageInfo.rotationDegrees
+    if (rotationDegrees == 0) return bitmap
 
-    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    val matrix = Matrix().apply { postRotate(rotationDegrees.toFloat()) }
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+}
 
-    return bitmap
+private fun jpegImageProxyToBitmap(image: ImageProxy): Bitmap {
+    val buffer = image.planes.firstOrNull()?.buffer
+        ?: throw IllegalArgumentException("Missing JPEG plane")
+    val bytes = ByteArray(buffer.remaining()).also { buffer.get(it) }
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        ?: throw IllegalArgumentException("Failed to decode JPEG image")
+}
+
+private fun rgbaImageProxyToBitmap(image: ImageProxy): Bitmap {
+    val plane = image.planes.firstOrNull()
+        ?: throw IllegalArgumentException("Missing RGBA plane")
+
+    val width = image.width
+    val height = image.height
+    val expectedRowBytes = width * 4
+    val buffer = plane.buffer
+    val rowStride = plane.rowStride
+
+    val packedRgba = if (rowStride == expectedRowBytes) {
+        ByteArray(buffer.remaining()).also { buffer.get(it) }
+    } else {
+        val rowData = ByteArray(rowStride)
+        ByteArray(expectedRowBytes * height).also { packed ->
+            for (row in 0 until height) {
+                buffer.position(row * rowStride)
+                buffer.get(rowData, 0, rowStride)
+                System.arraycopy(rowData, 0, packed, row * expectedRowBytes, expectedRowBytes)
+            }
+        }
+    }
+
+    return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bitmap ->
+        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(packedRgba))
+    }
 }
 
 private fun resizeBitmap(bitmap: Bitmap): Bitmap {
