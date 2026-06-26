@@ -45,7 +45,7 @@ implementation("com.simprints.biometrics:simface:2026.1.0")
 implementation("com.simprints.biometrics:simq:2026.1.0")
 ```
 
-### SimFace Demo app
+## SimFace Demo app
 
 The `sample` module demonstrates end-to-end usage of SimFace APIs in a minimal app.
 It is intended as a reference implementation for integration and testing.
