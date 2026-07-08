@@ -11,7 +11,7 @@ camera = "1.6.1"
 faceDetection = "16.1.7"
 ejmlSimple = "0.46.0"
 opencv = "5.0.0.1"
-litert = "2.1.6"
+litert = "1.4.2"
 litertSupport = "1.4.2"
 truth = "1.4.5"
 junit = "4.13.2"
@@ -42,7 +42,6 @@ camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "
 
 litert = { group = "com.google.ai.edge.litert", name = "litert", version.ref = "litert" }
 litert-support = { group = "com.google.ai.edge.litert", name = "litert-support", version.ref = "litertSupport" }
-litert-metadata = { group = "com.google.ai.edge.litert", name = "litert-metadata", version.ref = "litertSupport" }
 
 face-detection = { group = "com.google.mlkit", name = "face-detection", version.ref = "faceDetection" }
 ejml-simple = { group = "org.ejml", name = "ejml-simple", version.ref = "ejmlSimple" }
