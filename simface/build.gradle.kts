@@ -45,9 +45,9 @@ dependencies {
     api(project(":simq"))
 
     // Tensorflow versions that works with Edgeface
-    api(libs.tensorflow.lite.support)
-    api(libs.tensorflow.lite.metadata)
-    api(libs.tensorflow.lite)
+    api(libs.litert.support)
+    api(libs.litert.metadata)
+    api(libs.litert)
 
     // Face Detection and quality
     api(libs.face.detection)
