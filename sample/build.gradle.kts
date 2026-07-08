@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.simprints.sample"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.simprints.sample"

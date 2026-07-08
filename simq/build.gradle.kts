@@ -14,7 +14,7 @@ version = projectVersion
 
 android {
     namespace = "com.simprints.simq"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 23
