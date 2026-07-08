@@ -52,10 +52,10 @@ dependencies {
     implementation(libs.material)
     api(libs.opencv)
 
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.test.truth)
+    androidTestImplementation(libs.test.androidx.junit)
+    androidTestImplementation(libs.test.espresso)
+    androidTestImplementation(libs.test.coroutine)
 }
 
 publishing {
