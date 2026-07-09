@@ -39,10 +39,10 @@ Import the dependencies in `build.gradle.kts`:
 
 ```kotlin
 // To add the full Biometric SDK
-implementation("com.simprints.biometrics:simface:2026.1.0")
+implementation("com.simprints.biometrics:simface:2026.2.0")
 
 // Or if only quality assessment is needed
-implementation("com.simprints.biometrics:simq:2026.1.0")
+implementation("com.simprints.biometrics:simq:2026.2.0")
 ```
 
 ## SimFace Demo app

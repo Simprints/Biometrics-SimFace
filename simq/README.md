@@ -16,7 +16,7 @@ SimQ evaluates face images based on four key metrics:
 Add the dependency to your `build.gradle.kts`:
 
 ```kotlin
-implementation("com.simprints.biometrics:simq:2026.1.0")
+implementation("com.simprints.biometrics:simq:2026.2.0")
 ```
 
 ## Basic Usage
