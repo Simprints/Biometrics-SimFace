@@ -7,7 +7,7 @@ plugins {
 
 val projectGroupId = "com.simprints.biometrics"
 val projectArtifactId = "simface"
-val projectVersion = "2026.1.0"
+val projectVersion = "2026.2.0"
 
 group = projectGroupId
 version = projectVersion
