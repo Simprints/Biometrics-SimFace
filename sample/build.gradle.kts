@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.simprints.sample"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.simprints.sample"
@@ -61,11 +61,11 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.truth)
+    testImplementation(libs.test.coroutine)
+    androidTestImplementation(libs.test.androidx.junit)
+    androidTestImplementation(libs.test.espresso)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }

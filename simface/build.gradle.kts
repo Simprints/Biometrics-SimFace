@@ -15,7 +15,7 @@ version = projectVersion
 android {
 
     namespace = "$projectGroupId.$projectArtifactId"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 23
@@ -45,9 +45,8 @@ dependencies {
     api(project(":simq"))
 
     // Tensorflow versions that works with Edgeface
-    api(libs.tensorflow.lite.support)
-    api(libs.tensorflow.lite.metadata)
-    api(libs.tensorflow.lite)
+    api(libs.litert)
+    api(libs.litert.support)
 
     // Face Detection and quality
     api(libs.face.detection)
@@ -55,10 +54,10 @@ dependencies {
     // For face alignment
     api(libs.ejml.simple)
 
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.test.truth)
+    androidTestImplementation(libs.test.androidx.junit)
+    androidTestImplementation(libs.test.espresso)
+    androidTestImplementation(libs.test.coroutine)
 }
 
 publishing {
