@@ -1,4 +1,4 @@
-name: Publish to GitHub Packages
+name: Publish SimQ to GitHub Packages
 
 on:
   workflow_dispatch:
@@ -40,10 +40,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build libraries
-        run: ./gradlew simface:build
+        run: ./gradlew simq:build
 
       - name: Publish to GitHub Packages
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew simface:publish
+        run: ./gradlew simq:publish
